@@ -12,5 +12,6 @@ build_docker:
 
 .PHONY: run_docker
 run_docker:
+	xhost + &&\
 	docker-compose -p ${PROJECT} -f $(DOCKERFILE_DIRECTORY)/$(DOCKERCOMPOSE_FILE) up -d &&\
 	docker exec -it ${CONTAINER_NAME} bash
