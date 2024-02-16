@@ -69,6 +69,13 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
+ARG env_name=robodiff
+# Activate environment
+ENV CONDA_DEFAULT_ENV ${env_name}
 
+# Switch default environment
+RUN echo "conda activate ${env_name}" >> ~/.zshrc
+ENV CONDA_DEFAULT_ENV <env_name> && \
+    PATH /root/mambaforge/envs/robodiff/bin${env_name}/bin:$PATH
 # Set default command
 CMD ["zsh"]
