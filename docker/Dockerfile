@@ -45,8 +45,20 @@ RUN mkdir -p external/ && cd external/ && git clone https://github.com/R2D2-like
     pip3 install -r requirements-extra.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
 WORKDIR /root
 
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# enable tab in container
+RUN apt-get update && \
+    apt-get install -y bash-completion && \
+    rm /etc/apt/apt.conf.d/docker-clean && apt update && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*  
+
+# bash-completionをコンテナ起動時に自動でソースするためのスクリプトを追加
+RUN echo 'if [ -f /etc/bash_completion ]; then' >> /etc/bash.bashrc && \
+    echo '  . /etc/bash_completion' >> /etc/bash.bashrc && \
+    echo 'fi' >> /etc/bash.bashrc
+
+# RUN apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
 
