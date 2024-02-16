@@ -40,8 +40,9 @@ RUN pip3 install PyYAML
 RUN pip3 install --upgrade pip
 
 WORKDIR /root
-RUN mkdir -p external/ && cd external/ && git clone https://github.com/ARISE-Initiative/robosuite.git \
-    && cd /root/external/robosuite && pip3 install -r requirements.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
+RUN mkdir -p external/ && cd external/ && git clone https://github.com/R2D2-like/robosuite.git \
+    && cd /root/external/robosuite && pip3 install -r requirements.txt && \
+    pip3 install -r requirements-extra.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
 WORKDIR /root
 
 RUN apt-get clean && \
