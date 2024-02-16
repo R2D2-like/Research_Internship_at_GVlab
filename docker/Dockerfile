@@ -36,13 +36,11 @@ RUN apt-get install -y \
     libosmesa6-dev \
     libgl1-mesa-glx \
     libglfw3 \
-    patchelf \
-    python-opengl icewm
+    patchelf 
 
 # Configure zsh with oh-my-zsh
 RUN wget http://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 RUN sed -i 's/# DISABLE_AUTO_UPDATE="true"/DISABLE_AUTO_UPDATE="true"/g' ~/.zshrc
-RUN echo 'alias vnc="export DISPLAY=:0; Xvfb :0 -screen 0 1400x900x24 &; x11vnc -display :0 -forever -noxdamage > /dev/null 2>&1 &; icewm-session &"' >> ~/.zshrc
 RUN echo 'source "$HOME/mambaforge/etc/profile.d/conda.sh"' >> ~/.zshrc
 RUN echo 'source "$HOME/mambaforge/etc/profile.d/mamba.sh"' >> ~/.zshrc
 
