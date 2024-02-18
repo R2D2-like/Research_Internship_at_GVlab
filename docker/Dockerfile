@@ -1,64 +1,90 @@
-FROM ubuntu:20.04
+# Base image
+FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
+
+# Set the default shell to bash for compatibility
 SHELL ["/bin/bash", "-c"]
 
+#timezone
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+# Install common dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    pkg-config \
+    unzip \
+    wget \
+    git \
+    zsh \
+    vim \
+    python3-pip \
+    lsb-release \
+    gnupg \
+    libsdl2-2.0-0 \
+    cmake \
+    xvfb \
+    xorg-dev \
+    freeglut3-dev \
+    libglu1-mesa-dev \
+    # xeyes
+    x11-apps \
+    # glxgears
+    mesa-utils  \
+    libgl1-mesa-dev \
+    libglib2.0-0 \
+    bash-completion
+
+# Enable bash-completion and configure it to source automatically on container startup
+RUN echo 'if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi' >> /etc/bash.bashrc
+
+# not to be asked keyboard-configuration
 ENV DEBIAN_FRONTEND=noninteractive
-
 RUN apt-get update && \
-    apt-get install -y \
-        wget \
-        curl \
-        git \
-        vim \
-        python3-pip \
-        lsb-release \
-        gnupg 
+    apt-get install -y  -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" keyboard-configuration
 
+# Install dependencies for robomimic and other utilities
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libgl1-mesa-dev \
+    libgl1-mesa-glx \
+    libglew-dev \
+    libosmesa6-dev \
+    software-properties-common \
+    net-tools \
+    unzip \
+    vim \
+    virtualenv \
+    wget \
+    xpra \
+    xserver-xorg-dev \
+    libglfw3-dev \
+    patchelf
 
-COPY ./. /root/Research_Internship_at_GVlab/
-RUN chmod -R +x /root/Research_Internship_at_GVlab/*
-
-# # Force color prompt in terminal.
-RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' /root/.bashrc
-
-
-# CUDA 11.7
-# RUN pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 torchaudio==0.13.0 --extra-index-url https://download.pytorch.org/whl/cu117
-
-# xeyes
-RUN apt-get update -y; apt-get install -y x11-apps;
-
-# opencv
-RUN pip3 install opencv-python
-RUN apt-get update && \
-    apt-get install -y libgl1-mesa-dev
-RUN apt-get install -y libglib2.0-0
-
-# yaml
-RUN pip3 install PyYAML
-
-# pip
+# Install Python packages
 RUN pip3 install --upgrade pip
+RUN pip3 install opencv-python PyYAML
 
-WORKDIR /root
-RUN mkdir -p external/ && cd external/ && git clone https://github.com/R2D2-like/robosuite.git \
+# Setup bash for color prompt
+RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
+
+# Clone and install robosuite
+RUN mkdir -p /root/external/ && cd /root/external/ && git clone -b ri@gvlab https://github.com/R2D2-like/robomimic.git && \
+    cd /root/external/robomimic && pip install -e .
+
+RUN pip3 install mujoco
+RUN pip3 install robosuite
+
+# uninstall 'blinker'
+RUN apt-get remove python3-blinker -y
+RUN cd /root/external/ && git clone https://github.com/R2D2-like/robosuite.git \
     && cd /root/external/robosuite && pip3 install -r requirements.txt && \
     pip3 install -r requirements-extra.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
-WORKDIR /root
 
-# enable tab in container
-RUN apt-get update && \
-    apt-get install -y bash-completion && \
-    rm /etc/apt/apt.conf.d/docker-clean && apt update && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*  
+# RUN python3 /usr/local/lib/python3.10/dist-packages/robosuite/scripts/setup_macros.py
 
-# bash-completionをコンテナ起動時に自動でソースするためのスクリプトを追加
-RUN echo 'if [ -f /etc/bash_completion ]; then' >> /etc/bash.bashrc && \
-    echo '  . /etc/bash_completion' >> /etc/bash.bashrc && \
-    echo 'fi' >> /etc/bash.bashrc
-
-# RUN apt-get clean && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
 
