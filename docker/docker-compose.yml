@@ -3,13 +3,18 @@ version: "2.4"
 ################################################################################
 
 services:
-  ri-gvlab: # image name : PROJECT_frustum-convnet
-    container_name: ri-gvlab # container name: frustum-convnet
+  ri-gvlab: # image name : PROJECT_ri-gvlab
+    container_name: ri-gvlab # container name: ri-gvlab
+    runtime: nvidia
     privileged: true
     environment:
       # Display X Server GUI.
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
+      # Configure Nvidia Docker interface.
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_REQUIRE_CUDA=cuda>=11.0
     build:
       context: ../
       dockerfile: ./docker/Dockerfile
