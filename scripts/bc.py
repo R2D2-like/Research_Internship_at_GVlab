@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import h5py
 import numpy as np
@@ -24,6 +25,7 @@ import imageio
 
 from IPython.display import HTML
 from base64 import b64encode
+import cv2
 
 
 def get_example_model(dataset_path, device):
@@ -197,6 +199,43 @@ def main(args):
     print(rollout_log)
 
     print("Rollout video saved to", video_path)
+
+    # display video
+    # ビデオキャプチャオブジェクトを作成
+    cap = cv2.VideoCapture(video_path)
+
+    try:
+        # 無限ループでビデオを繰り返し再生
+        while True:
+            # ビデオの位置をファイルの先頭に戻す
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+            # ビデオが開かれている間ループ
+            while cap.isOpened():
+                # フレームを1つ読み込む
+                ret, frame = cap.read()
+
+                # フレームが読み込めたか確認
+                if not ret:
+                    print("ビデオの終わりに達しました．")
+                    break  # ビデオの最後に達したらループを抜ける
+
+                # フレームを表示
+                cv2.imshow('Frame', frame)
+
+                # 'q'キーが押されたらプログラムを終了
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    sys.exit(0)  # プログラムを終了
+
+    except KeyboardInterrupt:
+        # Ctrl+Cが押された場合にはプログラムを終了
+        print("プログラムがユーザーによって中断されました．")
+
+    finally:
+        # 作業が終わったらキャプチャをリリースし、ウィンドウを閉じる
+        cap.release()
+        cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
