@@ -52,7 +52,7 @@ RUN pip3 install opencv-python PyYAML
 RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
 
 # Install Miniforge for conda environment management
-COPY conda_environment.yaml /root/
+COPY docker/conda_environment.yaml /root/
 RUN wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" && \
     bash Mambaforge-Linux-x86_64.sh -b && \
     ~/mambaforge/bin/conda init bash && \
