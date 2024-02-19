@@ -1,5 +1,5 @@
 # Base image
-FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
+FROM ubuntu:20.04
 
 # Set the default shell to bash for compatibility
 SHELL ["/bin/bash", "-c"]
@@ -73,15 +73,20 @@ RUN mkdir -p /root/external/ && cd /root/external/ && git clone -b ri@gvlab http
     cd /root/external/robomimic && pip install -e .
 
 RUN pip3 install mujoco
-RUN pip3 install robosuite
 
 # uninstall 'blinker'
 RUN apt-get remove python3-blinker -y
+RUN pip3 uninstall PyOpenGL PyOpenGL_accelerate -y
+# make sure the version of PyOpenGL is 3.1.7
+RUN pip3 install PyOpenGL==3.1.7 PyOpenGL_accelerate==3.1.7
 RUN cd /root/external/ && git clone https://github.com/R2D2-like/robosuite.git \
     && cd /root/external/robosuite && pip3 install -r requirements.txt && \
-    pip3 install -r requirements-extra.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
-
+    pip3 install -r requirements-extra.txt
+RUN python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
 # RUN python3 /usr/local/lib/python3.10/dist-packages/robosuite/scripts/setup_macros.py
+
+# set up robosuite
+RUN cd /root/external/robosuite && pip3 install -e .
 
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*

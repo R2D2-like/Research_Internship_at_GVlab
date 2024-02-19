@@ -1,4 +1,4 @@
-LOCAL_BASE_IMAGE:=ubuntu:22.04
+LOCAL_BASE_IMAGE:=ubuntu:20.04
 DOCKERFILE_DIRECTORY := ./docker
 DOCKERCOMPOSE_FILE := docker-compose.yml
 DOCKER_IMAGE_NAME:=ri-gvlab 
