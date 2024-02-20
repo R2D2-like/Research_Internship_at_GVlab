@@ -73,13 +73,18 @@ RUN mkdir -p /root/external/ && cd /root/external/ && git clone -b ri@gvlab http
     cd /root/external/robomimic && pip install -e .
 
 RUN pip3 install mujoco
-RUN pip3 install robosuite
+
+# make sure version of opengl is not 3.0
+RUN pip3 install PyOpenGL==3.1.5
 
 # uninstall 'blinker'
 RUN apt-get remove python3-blinker -y
 RUN cd /root/external/ && git clone https://github.com/R2D2-like/robosuite.git \
     && cd /root/external/robosuite && pip3 install -r requirements.txt && \
     pip3 install -r requirements-extra.txt && python3 /root/external/robosuite/robosuite/scripts/setup_macros.py
+
+# set up robosuite
+RUN cd /root/external/robosuite && pip3 install -e .
 
 # RUN python3 /usr/local/lib/python3.10/dist-packages/robosuite/scripts/setup_macros.py
 
