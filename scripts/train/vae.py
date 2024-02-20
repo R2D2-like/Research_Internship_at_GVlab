@@ -23,7 +23,7 @@ class VAE(nn.Module):
 
         modules = []
         if hidden_dim is None:
-            hidden_dim = 32 # TODO:not mentioned in the paper??
+            hidden_dim = 5 # TODO:not mentioned in the paper??
         self.hidden_dim = hidden_dim
 
         # Build Encoder (1 fully-connected layer)
@@ -41,12 +41,10 @@ class VAE(nn.Module):
         # Build Decoder (1 fully-connected layer)
         modules = []
 
-        self.decoder_input = nn.Linear(latent_dim, hidden_dim*200*2)
-
         # 1 fully-connected layer, relu activation with dropout rate 0.1
         modules.append(
             nn.Sequential(
-                nn.Linear(hidden_dim, input_dim),
+                nn.Linear(latent_dim, hidden_dim*200*2),
                 nn.ReLU(),
                 nn.Dropout(0.1)
             )
@@ -55,7 +53,7 @@ class VAE(nn.Module):
         self.decoder = nn.Sequential(*modules)
 
         self.final_layer = nn.Sequential(
-            nn.Linear(input_dim, input_dim)
+            nn.Linear(hidden_dim, input_dim)
         )
 
     def encode(self, input: Tensor) -> List[Tensor]:
@@ -83,9 +81,8 @@ class VAE(nn.Module):
         :param z: (Tensor) [B x D]
         :return: (Tensor) [B x C x H x W]
         """
-        result = self.decoder_input(z) # (B, hidden_dim*200*2)
+        result = self.decoder(z) # (B, hidden_dim*200*2)
         result = result.view(-1, 2, 200, self.hidden_dim) # (B, 2, 200, hidden_dim)
-        result = self.decoder(result) 
         result = self.final_layer(result)
         return result
 

@@ -16,26 +16,25 @@ class LfD(VAE):
                  input_dim: int = 6,
                  output_dim: int = 3,
                  latent_dim: int = 5,
-                 hidden_dim: int = None,
+                 hidden_dim: int = 5,
                  **kwargs) -> None:
         # Initialize the VAE with the same parameters
         super().__init__(input_dim=input_dim,
                          latent_dim=latent_dim,
                          hidden_dim=hidden_dim,
                          **kwargs)
-
+        
+        self.hidden_dim = hidden_dim
+        
         # Redefine the decoder to match the LfD output dimensions
-        self.decoder_input = nn.Linear(latent_dim, hidden_dim * 2000) # (B, 2000*hidden_dim)
-
-        # Redefine the decoder layers to output the desired output_dim
         self.decoder = nn.Sequential(
-            nn.Linear(hidden_dim, output_dim),
+            nn.Linear(latent_dim, hidden_dim * 2000),
             nn.Dropout(0.1)
         )
 
         # Adjust the final layer to output the correct dimension
         self.final_layer = nn.Sequential(
-            nn.Linear(output_dim, output_dim)
+            nn.Linear(hidden_dim, output_dim)
         )
 
     # The encode and reparameterize methods are inherited from VAE
@@ -44,9 +43,8 @@ class LfD(VAE):
         """
         Override the VAE's decode method to match the LfD.
         """
-        result = self.decoder_input(z)  # (B, 2000*hidden_dim)
+        result = self.decoder(z) # (B, 2000*hidden_dim)
         result = result.view(-1, 2000, self.hidden_dim)  # (B, 2000, hidden_dim)
-        result = self.decoder(result)
         result = self.final_layer(result)
         return result
     
