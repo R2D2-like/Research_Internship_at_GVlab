@@ -19,6 +19,32 @@ from robosuite.models.objects import BoxObject
 from robosuite.models.arenas.table_arena import TableArena
 import copy
 
+FORCE_TORQUE_SAMPLING_RATE = 100  # Hz, independent of control_freq
+
+# def move_end_effector(env, direction, speed, duration, data_recorder):
+#     """
+#     Move the end-effector in a specified direction at a specified speed for a certain duration, while recording data.
+#     """
+#     if data_recorder is not None:
+#         data_recorder_res = copy.deepcopy(data_recorder)
+#     else:
+#         data_recorder_res = []
+#     num_steps = int(duration * env.control_freq)  # Convert duration to number of steps
+#     for _ in range(num_steps):
+#         action = np.zeros(env.action_dim)
+#         action[:3] = direction * speed
+#         obs, _, _, _ = env.step(action)
+
+#         # Record force and torque data
+#         force = env.robots[0].ee_force
+#         torque = env.robots[0].ee_torque
+#         force_torque = np.concatenate([force, torque])
+
+#         data_recorder_res.append(force_torque)
+#         env.render()
+
+#     return data_recorder_res, obs
+
 def move_end_effector(env, direction, speed, duration, data_recorder):
     """
     Move the end-effector in a specified direction at a specified speed for a certain duration, while recording data.
@@ -27,51 +53,25 @@ def move_end_effector(env, direction, speed, duration, data_recorder):
         data_recorder_res = copy.deepcopy(data_recorder)
     else:
         data_recorder_res = []
-    num_steps = int(duration * env.control_freq)  # Convert duration to number of steps
-    for _ in range(num_steps):
+    observable_steps = int(duration * FORCE_TORQUE_SAMPLING_RATE)  # Use new rate for recording
+    control_steps = int(duration * env.control_freq)  # Control steps as per control_freq
+    step_ratio = observable_steps // control_steps  # Calculate how many observables per control step
+
+    for step in range(control_steps):
         action = np.zeros(env.action_dim)
         action[:3] = direction * speed
         obs, _, _, _ = env.step(action)
 
-        # Record force and torque data
-        force = env.robots[0].ee_force
-        torque = env.robots[0].ee_torque
-        force_torque = np.concatenate([force, torque])
+        # Record force and torque data at the higher frequency
+        for _ in range(step_ratio):
+            force = env.robots[0].ee_force
+            torque = env.robots[0].ee_torque
+            force_torque = np.concatenate([force, torque])
 
-        data_recorder_res.append(force_torque)
+            data_recorder_res.append(force_torque)
         env.render()
 
     return data_recorder_res, obs
-
-# def move_end_effector(env, direction, speed, duration, data_recorder):
-#     """
-#     Move the end-effector in a specified direction at a specified speed for a certain duration, while recording data.
-#     :param env: The robosuite environment.
-#     :param direction: The direction to move (np.array).
-#     :param speed: The speed to move at (m/s).
-#     :param duration: The duration to move for (seconds).
-#     :param _data_recorder: List to record force and torque data.
-#     """
-#     if data_recorder is not None:
-#         data_recorder_res = copy.deepcopy(data_recorder)
-#     else:
-#         data_recorder_res = []
-#     start_time = time.time()
-#     while time.time() - start_time < duration:
-#         action = np.zeros(6)  # [dx, dy, dz, droll, dpitch, dyaw, grasp]
-#         action[:3] = direction * speed  # Set movement direction and speed
-#         obs, _, _, _ = env.step(action)
-        
-#         # Record force and torque data (force_ee)
-#         force = env.robots[0].ee_force
-#         torque =  env.robots[0].ee_torque
-#         force_torque = np.concatenate([force, torque])
-
-#         data_recorder_res.append(force_torque)
-        
-#         env.render()
-        
-#     return data_recorder_res
 
 
 class ExploratoryTask(SingleArmEnv):
@@ -203,9 +203,9 @@ class ExploratoryTask(SingleArmEnv):
         gripper_types="default",
         initialization_noise="default",
         table_full_size=(0.8, 0.8, 0.05),
-        table_friction=(1.0, 5e-3, 1e-4),
+        table_friction=(1, 0.005, 0.0001),
         sponge_size=(0.05, 0.05, 0.025),
-        sponge_friction=(1.0, 5e-3, 1e-4),
+        sponge_friction=None,
         use_camera_obs=True,
         use_object_obs=True,
         reward_scale=1.0,
@@ -228,13 +228,19 @@ class ExploratoryTask(SingleArmEnv):
         camera_segmentations=None,  # {None, instance, class, element}
         renderer="mujoco",
         renderer_config=None,
+        solref=None,
     ):
         # settings for table top
         self.table_full_size = table_full_size
         self.table_friction = table_friction
         self.table_offset = np.array((0, 0, 0.8))
         self.sponge_size = sponge_size
-        self.sponge_friction = sponge_friction
+        if sponge_friction is None:
+            lateral_friction_sponge = np.random.uniform(0.2, 8.0)
+            spin_friction_sponge = np.random.uniform(0.0, 4.0)
+            self.sponge_friction = (lateral_friction_sponge, 5e-3, spin_friction_sponge)
+        else:
+            self.sponge_friction = sponge_friction
 
         # reward configuration
         self.reward_scale = reward_scale
@@ -245,6 +251,17 @@ class ExploratoryTask(SingleArmEnv):
 
         # object placement initializer
         self.placement_initializer = placement_initializer
+
+        # set solref for sponge to be used in the mujoco model
+        # if solref is not provided, varying contact stiffness k ∈ [80, 1000] N/m
+        if solref is None:
+            print("Using random solref for sponge")
+            stiffness = np.random.uniform(80, 1000)
+            self.solref = (1/stiffness, 0.5) # (time constant, damping ratio), where time constant = 1/stiffness
+        else:
+            self.solref = solref
+            
+
 
         super().__init__(
             robots=robots,
@@ -345,9 +362,12 @@ class ExploratoryTask(SingleArmEnv):
             size=self.sponge_size,
             density=500,
             friction=self.sponge_friction,
+            solref=self.solref,
             material=CustomMaterial(texture="Sponge",\
                                     tex_name="Sponge", mat_name="Sponge"),
         )
+
+        print('sponge solref:',self.sponge.solref)
 
         # Create placement initializer
         if self.placement_initializer is not None:
@@ -425,7 +445,7 @@ class ExploratoryTask(SingleArmEnv):
                 observables[name] = Observable(
                     name=name,
                     sensor=s,
-                    sampling_rate=self.control_freq,
+                    sampling_rate=FORCE_TORQUE_SAMPLING_RATE,
                 )
 
         return observables
@@ -503,7 +523,7 @@ env = suite.make(
     use_camera_obs=False,  # Do not use camera observations
     use_object_obs=True,  # Use object observations
     reward_shaping=True,  # Enable reward shaping
-    control_freq=100,  # 100Hz control for the robot
+    control_freq=20,  # 100Hz control for the robot
     horizon=200,  # 200 timesteps per episode
     ignore_done=True,  # Never terminate the environment
 )
@@ -539,7 +559,7 @@ obs = env.reset()
 sponge_pos = obs['sponge_pos']
 print('sponge',sponge_pos)
 initial_pos = sponge_pos# + np.array([0, 0, sponge_size[2]])
-initial_pos[0] += 0.2
+# initial_pos[0] += 0.2
 initial_orientation = np.array([0, 0, 0])
 initial_action = np.concatenate([initial_pos, initial_orientation])
 
@@ -554,7 +574,7 @@ def move_end_effector_to_position(env, obs, target_position, threshold=0.001):
         current_position = obs['robot0_eef_pos']  # 現在のエンドエフェクタの位置を取得
         displacement = target_position - current_position  # 目的の位置までの変位を計算
         action = np.zeros(env.action_dim)  # 初期化
-        action[:3] = 10*displacement  # 変位に基づいてアクションを設定(15倍はなんとなく）
+        action[:3] = displacement  # 変位に基づいてアクションを設定(15倍はなんとなく）
 
         obs, reward, done, info = env.step(action)
         env.render()
@@ -583,13 +603,6 @@ data_recorder = []
 data_recorder, obs = move_end_effector(env, direction=np.array([0, 0, -1]), speed=0.01, duration=2, data_recorder=data_recorder)
 print('data_recorder',len(data_recorder), data_recorder[0].shape) # must be 200, 6
 print('env.is_eef_touching_sponge()',env.is_eef_touching_sponge())
-# move_end_effector(env, direction=np.array([0, 0, -1]), speed=0.01, duration=2, data_recorder=data_recorder)
-# move_end_effector_to_position(env, obs, obs['sponge_pos'])
-# check if contact with sponge  
-
-# sponge_pos = env.sim.data.body_xpos[env.sponge_body_id]
-# print('sponge',sponge_pos)
-# move_end_effector_to_position(env, sponge_pos)
 
 # Move end-effector to the right (lateral motion) at 0.05 m/s for 1 second
 data_recorder, _ = move_end_effector(env, direction=np.array([0, 1, 0]), speed=0.05, duration=1, data_recorder=data_recorder)
