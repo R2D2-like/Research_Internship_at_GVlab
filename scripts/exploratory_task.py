@@ -136,7 +136,7 @@ class ExploratoryTask(SingleArmEnv):
         self.sponge = BoxObject(
             name="sponge",
             size=self.sponge_size,
-            density=500,
+            density=50, # kg/m^3 e.g. water is 1000
             friction=self.sponge_friction,
             solref=self.solref,
             material=CustomMaterial(texture="Sponge",\

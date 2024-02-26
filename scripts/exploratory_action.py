@@ -85,7 +85,9 @@ def main():
 
     num = 0
 
+    roop_count = 0
     while num < DATA_NUM:
+        roop_count += 1
         env = suite.make(
             env_name="ExploratoryTask",
             robots="UR5e",
@@ -154,6 +156,8 @@ def main():
         # Close the environment
         env.close()
         num += 1
+
+    print('roop_count', roop_count)
 
     
 
