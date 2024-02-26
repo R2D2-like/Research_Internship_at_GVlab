@@ -2,7 +2,7 @@ import numpy as np
 from robosuite.environments.manipulation.single_arm_env import SingleArmEnv
 from robosuite.models.objects import BoxObject
 from robosuite.models.tasks import ManipulationTask
-from robosuite.utils.mjcf_utils import CustomMaterial
+from robosuite.utils.mjcf_utils import CustomMaterial, update_texture
 from robosuite.utils.observables import Observable, sensor
 from robosuite.utils.placement_samplers import UniformRandomSampler
 from robosuite.utils.transform_utils import convert_quat
@@ -132,6 +132,8 @@ class ExploratoryTask(SingleArmEnv):
 
         # Arena always gets set to zero origin
         mujoco_arena.set_origin([0, 0, 0])
+
+        # update_texture("Sponge", "/root/Research_Internship_at_GVlab/scripts/textures/sponge.png")
 
         self.sponge = BoxObject(
             name="sponge",
