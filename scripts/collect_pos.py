@@ -22,8 +22,10 @@ from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 
 from exploratory_task import ExploratoryTask
+import xml.etree.ElementTree as ET
 
 FORCE_TORQUE_SAMPLING_RATE = 100  # Hz
+GRIPPER_PATH = '/root/external/robosuite/robosuite/models/assets/grippers/wiping_cylinder_gripper.xml'      
 
 def collect_human_trajectory(env, device, arm, env_configuration):
     """
@@ -60,7 +62,6 @@ def collect_human_trajectory(env, device, arm, env_configuration):
 
         # If action is none, then this a reset so we should break
         if action is None:
-            # break
             continue
 
         # Run environment step
@@ -70,7 +71,6 @@ def collect_human_trajectory(env, device, arm, env_configuration):
 
         # Also break if we complete the task
         if task_completion_hold_count == 0:
-            # break
             continue
 
         # state machine to check for having a success for 10 consecutive timesteps
@@ -234,11 +234,28 @@ if __name__ == "__main__":
 
     # wrap the environment with data collection wrapper
     tmp_directory = "/tmp/{}".format(str(time.time()).replace(".", "_"))
+
+    # load gripper xml file 
+    tree = ET.parse(GRIPPER_PATH)
+    root = tree.getroot()
+    # Sampling friction values
+    lateral_friction = np.random.uniform(6, 12.0)
+    spin_friction = np.random.uniform(6, 12.0)
+    rolling_friction = 12
+    print('friction:', lateral_friction, spin_friction, rolling_friction) 
+
+    # Set friction of geom
+    for geom in root.iter('geom'):
+        if 'friction' in geom.attrib:
+            geom.set("friction", f"{lateral_friction} {spin_friction} {rolling_friction}")
+    # write to xml
+    tree.write(GRIPPER_PATH)
+
     env = suite.make(
             env_name="ExploratoryTask",
             robots="UR5e",
             controller_configs=controller_config,
-            gripper_types="Robotiq140Gripper",#"WipingGripper",  # Specify the gripper
+            gripper_types="WipingCylinderGripper",  # Specify the gripper
             has_renderer=True,  # No on-screen rendering
             has_offscreen_renderer=False,  # Enable off-screen rendering
             use_camera_obs=False,  # Do not use camera observations
@@ -246,7 +263,7 @@ if __name__ == "__main__":
             reward_shaping=True,  # Enable reward shaping
             control_freq=20,  # 100Hz control for the robot
             sampling_rate=FORCE_TORQUE_SAMPLING_RATE,  # 100Hz observation sampling
-            horizon=10000,  # 200 timesteps per episode
+            horizon=1000,  # 200 timesteps per episode
             ignore_done=True,  # Never terminate the environment
         )
 
