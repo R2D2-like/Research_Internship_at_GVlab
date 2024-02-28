@@ -6,7 +6,7 @@ from robosuite.utils.mjcf_utils import CustomMaterial, update_texture
 from robosuite.utils.observables import Observable, sensor
 from robosuite.utils.placement_samplers import UniformRandomSampler
 from robosuite.utils.transform_utils import convert_quat
-from robosuite.models.objects import BoxObject
+from robosuite.models.objects import BoxObject, CylinderObject
 from robosuite.models.arenas.table_arena import TableArena
 
 class ExploratoryTask(SingleArmEnv):
@@ -18,8 +18,8 @@ class ExploratoryTask(SingleArmEnv):
         gripper_types="default",
         initialization_noise="default",
         table_full_size=(0.8, 0.8, 0.05),
-        table_friction=(1, 0.005, 0.0001),
-        sponge_size=(0.05, 0.05, 0.025),
+        table_friction=(0.7, 0.005, 0.01),
+        sponge_size=(0.05, 0.03),
         sponge_friction=None,
         use_camera_obs=True,
         use_object_obs=True,
@@ -45,6 +45,7 @@ class ExploratoryTask(SingleArmEnv):
         renderer="mujoco",
         renderer_config=None,
         solref=None,
+        solimp=None,
     ):
         # settings for table top
         self.table_full_size = table_full_size
@@ -54,9 +55,10 @@ class ExploratoryTask(SingleArmEnv):
         # settings for sponge
         self.sponge_size = sponge_size
         if sponge_friction is None:
-            lateral_friction_sponge = np.random.uniform(0.2, 8.0)
-            spin_friction_sponge = np.random.uniform(0.0, 4.0)
-            self.sponge_friction = (lateral_friction_sponge, 5e-3, spin_friction_sponge)
+            # lateral_friction_sponge = np.random.uniform(0.2, 8.0)
+            # spin_friction_sponge = np.random.uniform(0.0, 4.0)
+            # self.sponge_friction = (lateral_friction_sponge, 5e-3, spin_friction_sponge)
+            self.sponge_friction = (0, 0, 0)
         else:
             self.sponge_friction = sponge_friction
 
@@ -73,10 +75,17 @@ class ExploratoryTask(SingleArmEnv):
         # set solref for sponge to be used in the mujoco model
         # if solref is not provided, varying contact stiffness k ∈ [80, 1000] N/m
         if solref is None:
-            stiffness = np.random.uniform(80, 1000)
-            self.solref = (1/stiffness, 0.5) # (time constant, damping ratio), where time constant = 1/stiffness
+            # stiffness = np.random.uniform(80, 1000)
+            time_constant = np.random.uniform(0.001, 0.00001) # corresponding to k(=stiffness)
+            self.solref = (time_constant, 1) # (time constant, damping ratio)
+            print('solref:', self.solref)
         else:
             self.solref = solref
+
+        if solimp is None:
+            self.solimp = (0.97, 0.998, 0.001)
+        else:
+            self.solimp = solimp
 
         # sampling rate for object observables
         self.sampling_rate = sampling_rate
@@ -135,12 +144,13 @@ class ExploratoryTask(SingleArmEnv):
 
         # update_texture("Sponge", "/root/Research_Internship_at_GVlab/scripts/textures/sponge.png")
 
-        self.sponge = BoxObject(
+        self.sponge = CylinderObject(
             name="sponge",
             size=self.sponge_size,
             density=50, # kg/m^3 e.g. water is 1000
             friction=self.sponge_friction,
             solref=self.solref,
+            solimp=self.solimp,
             material=CustomMaterial(texture="Sponge",\
                                     tex_name="Sponge",\
                                     mat_name="Sponge"),
@@ -151,12 +161,14 @@ class ExploratoryTask(SingleArmEnv):
             self.placement_initializer.reset()
             self.placement_initializer.add_objects(self.sponge)
         else:
+            # スポンジの辺を机の辺と平行になるように配置
             self.placement_initializer = UniformRandomSampler(
                 name="ObjectSampler",
                 mujoco_objects=self.sponge,
-                x_range=[-0.03, 0.03],
-                y_range=[-0.03, 0.03],
-                rotation=None,
+                x_range=[0, 0],
+                y_range=[0, 0],
+                rotation=np.pi/2,
+                rotation_axis="z",
                 ensure_object_boundary_in_range=False,
                 ensure_valid_placement=True,
                 reference_pos=self.table_offset,
@@ -259,18 +271,18 @@ class ExploratoryTask(SingleArmEnv):
         if vis_settings["grippers"]:
             self._visualize_gripper_to_target(gripper=self.robots[0].gripper, target=self.sponge)
 
-    # def _check_success(self):
-    #     """
-    #     Check if sponge has been lifted.
+    def _check_success(self):
+        """
+        Check if sponge has been lifted.
 
-    #     Returns:
-    #         bool: True if sponge has been lifted
-    #     """
-    #     sponge_height = self.sim.data.body_xpos[self.sponge_body_id][2]
-    #     table_height = self.model.mujoco_arena.table_offset[2]
+        Returns:
+            bool: True if sponge has been lifted
+        """
+        sponge_height = self.sim.data.body_xpos[self.sponge_body_id][2]
+        table_height = self.model.mujoco_arena.table_offset[2]
 
-    #     # sponge is higher than the table top above a margin
-    #     return sponge_height > table_height + 0.04
+        # sponge is higher than the table top above a margin
+        return sponge_height > table_height + 0.04
     
 
     def is_eef_touching_sponge(self):
