@@ -43,7 +43,7 @@ python3 scripts/bc.py --dataset /root/Research_Internship_at_GVlab/demo_data/tes
 ```
 
 ## step1(sim data collection ~ training)
-```python
+```
 cd Research_Internship_at_GVlab
 
 # シミュレーターでデータ収集
@@ -51,4 +51,13 @@ python3 scripts/exploratory_action_fixed.py
 
 # 学習
 python3 scripts/train/pre-training.py
+```
+
+## ros gazebo for UR5e (noetic)
+```
+# urシリーズの公式repoのREADMEのur5eバージョン
+# 必ず３つのウィンドウでこの順に実行する
+(terminal 1) roslaunch ur_gazebo ur5e_bringup.launch
+(terminal 2) roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true
+(terminal 3) roslaunch ur5e_moveit_config moveit_rviz.launch
 ```
