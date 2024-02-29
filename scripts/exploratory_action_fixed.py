@@ -54,7 +54,8 @@ def move_end_effector(env, direction, speed, duration):
     control_steps = int(duration * env.control_freq)
     for _ in range(control_steps):
         action = np.zeros(env.action_dim)
-        action[:3] = 15 * direction * speed  # Adjust action based on the environment's requirements
+        scaling_factor = 15  if duration==2 else 12.5
+        action[:3] = scaling_factor * direction * speed  # Adjust action based on the environment's requirements
         obs, _, _, _ = env.step(action)
         env.render()
 
