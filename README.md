@@ -56,6 +56,8 @@ python3 scripts/train/pre-training.py
 ## ros gazebo for UR5e (noetic)
 ```
 # urシリーズの公式repoのREADMEのur5eバージョン
+cd catkin_ws/src/universal_robot
+
 # 必ず３つのウィンドウでこの順に実行する
 (terminal 1) roslaunch ur_gazebo ur5e_bringup.launch
 (terminal 2) roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true
