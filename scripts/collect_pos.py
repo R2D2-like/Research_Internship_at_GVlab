@@ -261,6 +261,7 @@ if __name__ == "__main__":
             use_camera_obs=False,  # Do not use camera observations
             use_object_obs=True,  # Use object observations
             reward_shaping=True,  # Enable reward shaping
+            # render_camera="sideview",
             control_freq=20,  # 100Hz control for the robot
             sampling_rate=FORCE_TORQUE_SAMPLING_RATE,  # 100Hz observation sampling
             horizon=1000,  # 200 timesteps per episode
