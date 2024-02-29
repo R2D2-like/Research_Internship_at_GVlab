@@ -41,3 +41,14 @@ python3 robomimic/scripts/get_dataset_info.py --dataset /root/Research_Internshi
 cd /root/Research_Internship_at_GVlab/
 python3 scripts/bc.py --dataset /root/Research_Internship_at_GVlab/demo_data/test_data/modi_demo.hdf5
 ```
+
+## step1(sim data collection ~ training)
+```python
+cd Research_Internship_at_GVlab
+
+# シミュレーターでデータ収集
+python3 scripts/exploratory_action_fixed.py
+
+# 学習
+python3 scripts/train/pre-training.py
+```
