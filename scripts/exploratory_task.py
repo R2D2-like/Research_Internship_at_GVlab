@@ -19,7 +19,7 @@ class ExploratoryTask(SingleArmEnv):
         initialization_noise="default",
         table_full_size=(0.8, 0.8, 0.05),
         table_friction=(0.7, 0.005, 0.01),
-        sponge_size=(0.05, 0.03),
+        sponge_size=(0.06, 0.03),
         sponge_friction=None,
         use_camera_obs=True,
         use_object_obs=True,
@@ -58,7 +58,7 @@ class ExploratoryTask(SingleArmEnv):
             # lateral_friction_sponge = np.random.uniform(0.2, 8.0)
             # spin_friction_sponge = np.random.uniform(0.0, 4.0)
             # self.sponge_friction = (lateral_friction_sponge, 5e-3, spin_friction_sponge)
-            self.sponge_friction = (0, 0, 0)
+            self.sponge_friction = (1, 0.005, 0.0001)
         else:
             self.sponge_friction = sponge_friction
 
@@ -77,7 +77,7 @@ class ExploratoryTask(SingleArmEnv):
         if solref is None:
             # stiffness = np.random.uniform(80, 1000)
             time_constant = np.random.uniform(0.001, 0.00001) # corresponding to k(=stiffness)
-            self.solref = (time_constant, 1) # (time constant, damping ratio)
+            self.solref = (0.0001, 1) # (time constant, damping ratio)
             print('solref:', self.solref)
         else:
             self.solref = solref
