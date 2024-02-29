@@ -1,15 +1,9 @@
 import numpy as np
 from robosuite.environments.manipulation.single_arm_env import SingleArmEnv
-from robosuite.models.objects import BoxObject
 from robosuite.models.tasks import ManipulationTask
-from robosuite.utils.mjcf_utils import CustomMaterial, update_texture
-from robosuite.utils.observables import Observable, sensor
-from robosuite.utils.placement_samplers import UniformRandomSampler
-from robosuite.utils.transform_utils import convert_quat
-from robosuite.models.objects import BoxObject, CylinderObject
 from robosuite.models.arenas.table_arena import TableArena
 
-class ExploratoryTask(SingleArmEnv):
+class ExploratoryTaskFixed(SingleArmEnv):
     def __init__(
         self,
         robots,

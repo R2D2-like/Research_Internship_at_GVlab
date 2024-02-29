@@ -2,8 +2,7 @@ import numpy as np
 import robosuite as suite
 from robosuite.environments.base import register_env
 from robosuite.controllers import load_controller_config
-import copy
-from exptask2 import ExploratoryTask
+from exploratory_task_fixed import ExploratoryTaskFixed
 import xml.etree.ElementTree as ET
 from robosuite.utils.buffers import RingBuffer
 
@@ -31,7 +30,6 @@ def move_end_effector(env, direction, speed, duration):
         return corrupted_value
 
     # Modify force and torque observables to use the filter function and increase their sampling rates
-    obs_sampling_freq = env.control_freq * 5  # Example: 5 times the control frequency
     env.modify_observable(
         observable_name="robot0_eef_force",
         attribute="filter",
@@ -40,7 +38,7 @@ def move_end_effector(env, direction, speed, duration):
     env.modify_observable(
         observable_name="robot0_eef_force",
         attribute="sampling_rate",
-        modifier=obs_sampling_freq
+        modifier=FORCE_TORQUE_SAMPLING_RATE
     )
     env.modify_observable(
         observable_name="robot0_eef_torque",
@@ -50,7 +48,7 @@ def move_end_effector(env, direction, speed, duration):
     env.modify_observable(
         observable_name="robot0_eef_torque",
         attribute="sampling_rate",
-        modifier=obs_sampling_freq
+        modifier=FORCE_TORQUE_SAMPLING_RATE
     )
 
     control_steps = int(duration * env.control_freq)
@@ -99,8 +97,7 @@ def move_end_effector_to_table(env, obs, target_position, threshold=0.01):
         if is_eef_touching_table(env):
             print("テーブルに触れました。")
             print('現在の位置',obs['robot0_eef_pos'])
-            print('テーブルの位置',env.model.mujoco_arena.table_top_abs)
-            print('current joint position', env.robots[0]._joint_positions)
+            # print('current joint position', env.robots[0]._joint_positions)
             return obs
 
 def is_eef_touching_table(env):
@@ -117,7 +114,7 @@ def is_eef_touching_table(env):
         return False
 
 def main():
-    register_env(ExploratoryTask)
+    register_env(ExploratoryTaskFixed)
 
     # Instantiate the environment with the UR5e robot 
     controller_config = load_controller_config(default_controller="OSC_POSE")
@@ -137,7 +134,8 @@ def main():
         rolling_friction = 0.0001
         print('friction:', lateral_friction, spin_friction, rolling_friction) 
         # solref
-        solref = np.random.uniform(0.1, 0.001)
+        solref = np.random.uniform(0.001, 0.1)
+        print('solref: {}, 1'.format(solref))
 
         # Set friction of geom
         for geom in root.iter('geom'):
@@ -150,7 +148,7 @@ def main():
 
         roop_count += 1
         env = suite.make(
-            env_name="ExploratoryTask",
+            env_name="ExploratoryTaskFixed",
             robots="UR5e",
             controller_configs=controller_config,
             gripper_types="SpongeGripper",  # Specify the gripper
@@ -181,24 +179,21 @@ def main():
         # Move end-effector downwards (pressing) at 0.01 m/s for 2 seconds
         data_recorder_p, obs = move_end_effector(env, direction=np.array([0, 0, -1]), speed=0.01, duration=2)
         print('current_position', obs['robot0_eef_pos'])
-        if not is_eef_touching_table(env):
-            # continue
-            pass
+        is_eef_touching_table(env)
+
         print('data_recorder_p ({}, {})'.format(len(data_recorder_p), data_recorder_p[0].shape)) #(200, 6)
 
         # Move end-effector to the right (lateral motion) at 0.05 m/s for 1 second
         data_recorder_l_1, obs = move_end_effector(env, direction=np.array([0, 1, 0]), speed=0.05, duration=1)
         print('current_position', obs['robot0_eef_pos'])
-        if not is_eef_touching_table(env):
-            # continue
-            pass
+        is_eef_touching_table(env)
+
         print('data_recorder_l_1 ({}, {})'.format(len(data_recorder_l_1), data_recorder_l_1[0].shape)) #(100, 6)
         # Move end-effector to the left (lateral motion) at -0.05 m/s for 1 second
         data_recorder_l_2, obs = move_end_effector(env, direction=np.array([0, -1, 0]), speed=0.05, duration=1)
         print('current_position', obs['robot0_eef_pos'])
-        if not is_eef_touching_table(env):
-            # continue
-            pass
+        is_eef_touching_table(env)
+
         print('data_recorder_l_2 ({}, {})'.format(len(data_recorder_l_2), data_recorder_l_2[0].shape)) #(100, 6)
 
         data_recorder_l = np.concatenate([data_recorder_l_1, data_recorder_l_2], axis=0) 
