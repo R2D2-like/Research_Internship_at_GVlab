@@ -53,7 +53,7 @@ python3 scripts/exploratory_action_fixed.py
 python3 scripts/train/pre-training.py
 ```
 
-## ros gazebo for UR5e (noetic)
+<!-- ## ros gazebo for UR5e (noetic)
 ```
 # urシリーズの公式repoのREADMEのur5eバージョン
 cd catkin_ws/src/universal_robot
@@ -62,4 +62,19 @@ cd catkin_ws/src/universal_robot
 (terminal 1) roslaunch ur_gazebo ur5e_bringup.launch
 (terminal 2) roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true
 (terminal 3) roslaunch ur5e_moveit_config moveit_rviz.launch
+``` -->
+
+## real robot execution (sim ver)
+```
+(terminal 1) roslaunch ur_gripper_gazebo ur_gripper_hande_cubes.launch ur_robot:=ur5e grasp_plugin:=1
+(terminal 2) rosrun ur_control ft_filter.py -t wrench
+
+# step1
+rosrun ur_control step1.py
+
+# step2
+rosrun ur_control step2.py
+
+# rollout
+rosrun ur_control rollout.py
 ```
