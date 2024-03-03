@@ -118,14 +118,9 @@ RUN apt install -y \
 
 RUN rosdep init && rosdep update
 
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends \
-#         python-rosinstall \
-#         python-catkin-tools
-
-RUN mkdir -p /root/catkin_ws/src && \
-    cd /root/catkin_ws && \
-    bash -c "source /opt/ros/noetic/setup.bash; catkin_make"
+# RUN mkdir -p /root/catkin_ws/src && \
+#     cd /root/catkin_ws && \
+#     bash -c "source /opt/ros/noetic/setup.bash; catkin_make"
 
 
 RUN apt-get update && \
@@ -157,9 +152,9 @@ RUN apt-get update && \
         ros-noetic-moveit-resources-prbt-moveit-config \
         ros-noetic-pilz-industrial-motion-planner 
 
-# set up for UR5e
-RUN cd /root/catkin_ws/src && \
-    git clone -b ri@gvlab https://github.com/R2D2-like/universal_robot.git
+# # set up for UR5e
+# RUN cd /root/catkin_ws/src && \
+#     git clone -b ri@gvlab https://github.com/R2D2-like/universal_robot.git
 
 # MoveIt
 RUN apt update && \
@@ -169,8 +164,8 @@ RUN apt update && \
 # source global ros
 RUN /bin/bash -c 'source /opt/ros/noetic/setup.bash'
 
-RUN cd /root/catkin_ws && \
-    git clone https://github.com/R2D2-like/Universal_Robots_ROS_Driver.git
+# RUN cd /root/catkin_ws && \
+#     git clone https://github.com/R2D2-like/Universal_Robots_ROS_Driver.git
 
 ENV ROS_DISTRO noetic
 
@@ -203,7 +198,7 @@ RUN apt-get update && apt-get install -y \
 RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
                && mkdir -p ~/ros_ws/src \
                && cd ~/ros_ws/src \
-               && git clone https://github.com/cambel/ur3.git ros-ur -b noetic-devel"
+               && git clone https://github.com/R2D2-like/ur3.git ros-ur -b ri@gvlab"
 
 # Updating ROSDEP and installing dependencies
 RUN cd ~/ros_ws \
@@ -229,15 +224,15 @@ RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
                && catkin build"
 
 
-RUN apt update -qq &&\
-    cd /root/catkin_ws && \
-    rosdep update && \
-    rosdep install --rosdistro noetic --ignore-src --from-paths src -y 
+# RUN apt update -qq &&\
+#     cd /root/catkin_ws && \
+#     rosdep update && \
+#     rosdep install --rosdistro noetic --ignore-src --from-paths src -y 
 
-RUN cd /root/catkin_ws && \
-    /bin/bash -c 'source /opt/ros/noetic/setup.bash && catkin_make'
+# RUN cd /root/catkin_ws && \
+#     /bin/bash -c 'source /opt/ros/noetic/setup.bash && catkin_make'
 
-RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
+# RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # Download gazebo models only once
 RUN mkdir -p ~/.gazebo
