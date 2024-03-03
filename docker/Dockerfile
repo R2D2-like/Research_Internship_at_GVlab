@@ -159,9 +159,78 @@ RUN apt-get update && \
 
 # set up for UR5e
 RUN cd /root/catkin_ws/src && \
-    git clone -b noetic-devel https://github.com/ros-industrial/universal_robot.git
+    git clone -b ri@gvlab https://github.com/R2D2-like/universal_robot.git
+
+# MoveIt
+RUN apt update && \
+    apt install ros-noetic-moveit -y
+
+# driver for real robot
+# source global ros
+RUN /bin/bash -c 'source /opt/ros/noetic/setup.bash'
 
 RUN cd /root/catkin_ws && \
+    git clone https://github.com/R2D2-like/Universal_Robots_ROS_Driver.git
+
+ENV ROS_DISTRO noetic
+
+# install universal robot ros packages
+RUN apt-get update && apt-get install -y \
+    # ROS utils 
+    ros-$ROS_DISTRO-gazebo-ros-pkgs \
+    ros-$ROS_DISTRO-spacenav-node \
+    ros-$ROS_DISTRO-rqt-common-plugins \
+    ros-$ROS_DISTRO-rqt-joint-trajectory-controller \
+    ros-$ROS_DISTRO-rqt-tf-tree \
+    ros-$ROS_DISTRO-rqt-multiplot \
+    ros-$ROS_DISTRO-moveit \
+    # install catkin
+    ros-$ROS_DISTRO-catkin \
+    python3-catkin-tools \
+    # utils
+    git \
+    locate \
+    aptitude \
+    vim htop \
+    curl wget \
+    spacenavd \
+    python-is-python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+### Ros Workspace ###
+# Set up the workspace
+RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
+               && mkdir -p ~/ros_ws/src \
+               && cd ~/ros_ws/src \
+               && git clone https://github.com/cambel/ur3.git ros-ur -b noetic-devel"
+
+# Updating ROSDEP and installing dependencies
+RUN cd ~/ros_ws \
+    && rosinstall ~/ros_ws/src /opt/ros/$ROS_DISTRO src/ros-ur/dependencies.rosinstall \
+    && apt-get update \
+    && rosdep fix-permissions \
+    && rosdep update \
+    && rosdep install --from-paths src --ignore-src --rosdistro=$ROS_DISTRO -y \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONIOENCODING UTF-8
+
+## Python3 libraries ##
+RUN python3 -m pip install pip --upgrade && \
+    pip install matplotlib==2.2.3 spicy protobuf pyyaml pyquaternion rospkg \
+    lxml tqdm catkin-pkg empy PyVirtualDisplay defusedxml gym psutil pyprind
+
+
+# # Compiling ros workspace
+RUN /bin/bash -c "source /opt/ros/$ROS_DISTRO/setup.bash \
+               && cd ~/ros_ws/ \
+               && rm -rf build \
+               && catkin build"
+
+
+RUN apt update -qq &&\
+    cd /root/catkin_ws && \
     rosdep update && \
     rosdep install --rosdistro noetic --ignore-src --from-paths src -y 
 
@@ -170,6 +239,18 @@ RUN cd /root/catkin_ws && \
 
 RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
+# Download gazebo models only once
+RUN mkdir -p ~/.gazebo
+RUN git clone https://github.com/osrf/gazebo_models ~/.gazebo/models
+
+# setup environment
+EXPOSE 11345
+
+RUN echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc
+RUN echo 'source ~/ros_ws/devel/setup.bash' >> ~/.bashrc
+
+RUN echo 'source /usr/share/gazebo/setup.sh' >> ~/.bashrc
+RUN echo 'export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:~/ros_ws/src/ros-universal-robots/ur_gripper_gazebo/models/' >> ~/.bashrc
 
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
