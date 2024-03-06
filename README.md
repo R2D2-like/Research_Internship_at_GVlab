@@ -18,7 +18,7 @@ cd external/robosuite
 python3 robosuite/demos/demo_random_action.py
 ```
 
-## data collection ~ converting data ~ training
+<!-- ## data collection ~ converting data ~ training
 ```
 cd external/robosuite/
 
@@ -40,9 +40,9 @@ python3 robomimic/scripts/get_dataset_info.py --dataset /root/Research_Internshi
 # 学習
 cd /root/Research_Internship_at_GVlab/
 python3 scripts/bc.py --dataset /root/Research_Internship_at_GVlab/demo_data/test_data/modi_demo.hdf5
-```
+``` -->
 
-## step1(sim data collection ~ training)
+## sim (sim data collection ~ pre-training)
 ```
 cd Research_Internship_at_GVlab
 
