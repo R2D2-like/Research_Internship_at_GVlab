@@ -42,7 +42,7 @@ cd /root/Research_Internship_at_GVlab/
 python3 scripts/bc.py --dataset /root/Research_Internship_at_GVlab/demo_data/test_data/modi_demo.hdf5
 ``` -->
 
-## step1(sim data collection ~ training)
+## sim (sim data collection ~ pre-training)
 ```
 cd Research_Internship_at_GVlab
 
