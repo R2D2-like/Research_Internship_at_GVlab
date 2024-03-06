@@ -27,7 +27,7 @@ def train(model, data_loader, optimizer, device, num_epochs=200):
                 print(f"Epoch: {epoch}, Loss: {loss.item()}, Reconstruction Loss: {loss_dict['Reconstruction_Loss']}, KLD: {loss_dict['KLD']}")
 
 if __name__ == "__main__":
-    data_path = "/root/Research_Internship_at_GVlab/model/step1/sim_data_4dim.npy"  # specify the path to data
+    data_path = "/root/Research_Internship_at_GVlab/sim/data/sim_data_4dim.npy"  # specify the path to data
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load data and create DataLoader
