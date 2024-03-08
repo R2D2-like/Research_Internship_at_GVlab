@@ -2,8 +2,14 @@ import numpy as np
 
 mode = input('0:merge pressing and lateral data, 1:merge step1 data: ')
 if mode =='0':
+    mode = input('0:training, 1:rollout: ')
+    if mode == '0':
+        # Load the npy data
+        dir = '/root/Research_Internship_at_GVlab/real/step1/data/'
+    else:
+        dir = '/root/Research_Internship_at_GVlab/real/rollout/data/exploratory/'
+
     # Load the npy data
-    dir = '/root/Research_Internship_at_GVlab/real/step1/data/'
     path_pressing = input('Enter the name of the pressing data: ')
     path_pressing = dir + 'pressing/' + path_pressing + '.npy'
     path_lateral = input('Enter the name of the lateral data: ')
