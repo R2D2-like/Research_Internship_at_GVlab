@@ -1,5 +1,5 @@
 # Base image
-FROM ubuntu:20.04
+FROM nvidia/cuda:11.6.1-devel-ubuntu20.04
 
 # Set the default shell to bash for compatibility
 SHELL ["/bin/bash", "-c"]
@@ -246,6 +246,9 @@ RUN echo 'source ~/ros_ws/devel/setup.bash' >> ~/.bashrc
 
 RUN echo 'source /usr/share/gazebo/setup.sh' >> ~/.bashrc
 RUN echo 'export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:~/ros_ws/src/ros-universal-robots/ur_gripper_gazebo/models/' >> ~/.bashrc
+
+# pytorch
+RUN pip install torch==1.13.0+cu116 torchvision==0.14.0+cu116 torchaudio==0.13.0 --extra-index-url https://download.pytorch.org/whl/cu116
 
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
