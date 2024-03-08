@@ -1,6 +1,6 @@
 '''
 This code is for few-shot LfD. (step2)
-input: (Sample, Action, Time step, 6) e.g. (6~8, 2, 200, 6)
+input: (Sample, Action, Time step, 6) e.g. (6~8, 400, 6)
 output: (Sample, Time step, 3) e.g. (6~8, 2000, 3)
 '''
 import torch

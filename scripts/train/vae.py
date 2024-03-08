@@ -1,7 +1,7 @@
 '''
 This code is for pre-training haptic representation model. (step1)
-input: (Sample, Action, Time step, 6) e.g. (1000, 2, 200, 6)
-output: (Sample, Action, Time step, 6) e.g. (1000, 2, 200, 6)
+input: (Sample, Time step, 6) e.g. (1000, 400, 6)
+output: (Sample, Time step, 6) e.g. (1000, 400, 6)
 '''
 import torch
 from torch import nn
@@ -34,8 +34,8 @@ class VAE(nn.Module):
             )
 
         self.encoder = nn.Sequential(*modules)
-        self.fc_mu = nn.Linear(hidden_dim*200*2, latent_dim) #(B, latent_dim)
-        self.fc_var = nn.Linear(hidden_dim*200*2, latent_dim) #(B, latent_dim)
+        self.fc_mu = nn.Linear(hidden_dim*400, latent_dim) #(B, latent_dim)
+        self.fc_var = nn.Linear(hidden_dim*400, latent_dim) #(B, latent_dim)
 
 
         # Build Decoder (1 fully-connected layer)
@@ -44,7 +44,7 @@ class VAE(nn.Module):
         # 1 fully-connected layer, relu activation with dropout rate 0.1
         modules.append(
             nn.Sequential(
-                nn.Linear(latent_dim, hidden_dim*200*2),
+                nn.Linear(latent_dim, hidden_dim*400),
                 nn.ReLU(),
                 nn.Dropout(0.1)
             )
@@ -65,7 +65,7 @@ class VAE(nn.Module):
         """
         result = self.encoder(input)
         #flatten AFTER the fully connected layer not to lose time information
-        result = torch.flatten(result, start_dim=1) #(B, hidden_dim*200*2)
+        result = torch.flatten(result, start_dim=1) #(B, hidden_dim*400)
 
         # Split the result into mu and var components
         # of the latent Gaussian distribution
@@ -81,8 +81,8 @@ class VAE(nn.Module):
         :param z: (Tensor) [B x D]
         :return: (Tensor) [B x C x H x W]
         """
-        result = self.decoder(z) # (B, hidden_dim*200*2)
-        result = result.view(-1, 2, 200, self.hidden_dim) # (B, 2, 200, hidden_dim)
+        result = self.decoder(z) # (B, hidden_dim*400)
+        result = result.view(-1, 400, self.hidden_dim) # (B, 400, hidden_dim)
         result = self.final_layer(result)
         return result
 
