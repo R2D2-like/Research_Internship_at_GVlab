@@ -143,7 +143,6 @@ def move_end_effector_to_table(env, obs, target_position, reset=False):
         if reset and obs['robot0_eef_pos'][2] < 1.02:
             global FORCE_OFFSET
             FORCE_OFFSET = np.mean(force_log[:10], axis=0)
-            print('FORCE_OFFSET', FORCE_OFFSET)
             global TORQUE_OFFSET
             TORQUE_OFFSET = np.mean(torque_log[:10], axis=0)
         
