@@ -10,9 +10,9 @@ fc = 110.0   # カットオフ周波数 (Hz)
 sos = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
 
 
-data = np.load('/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy') #(1000, 400, 3)
+data = np.load('/root/Research_Internship_at_GVlab/real/step1/data/step1_data.npy') #(12, 400, 3)
 
-for i in range(1000):
+for i in range(data.shape[0]):
     # フィルタリングされたデータを格納する配列を準備
     filtered_data = np.zeros_like(data[i])
 
@@ -20,27 +20,17 @@ for i in range(1000):
     for j in range(data[i].shape[1]):
         filtered_data[:, j] = sosfilt(sos, data[i][:, j])
 
-# normalized the filtered data
-max_val = []
-min_val = []
-
-for i in range(data.shape[2]):
-    max_val.append(np.max(data[:, :, i]))
-    min_val.append(np.min(data[:, :, i]))
-
 normalized_data = np.zeros_like(filtered_data)
 
+# normalized the filtered data
 for i in range(data.shape[2]):
-    normalized_data[:, i] = (filtered_data[:, i] - min_val[i]) / (max_val[i] - min_val[i])
+    normalized_data[:, i] = (filtered_data[:, i] - EXPLORATORY_MIN[i]) / (EXPLORATORY_MAX[i] - EXPLORATORY_MIN[i])
 
 # [0, 0.9]に正規化
 normalized_data = normalized_data * SCALING_FACTOR
 
 # save the normalized data
-np.save('/root/Research_Internship_at_GVlab/sim/data/pre-processed_sim_data.npy', normalized_data)
-print('copy the value below and paste it to config/values.py')
-print('EXPLORATORY_MIN =', min_val)
-print('EXPLORATORY_MAX =', max_val)
+np.save('/root/Research_Internship_at_GVlab/real/step1/data/pre-processed_step1_data.npy', normalized_data)
 
 # フィルタリング後のデータをプロット
 import matplotlib.pyplot as plt
@@ -54,3 +44,4 @@ ax.set_xlabel('Time')
 ax.set_ylabel('Force')
 ax.legend()
 plt.show()
+
