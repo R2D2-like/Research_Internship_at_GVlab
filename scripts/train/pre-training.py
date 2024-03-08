@@ -27,11 +27,11 @@ def train(model, data_loader, optimizer, device, num_epochs=200):
                 print(f"Epoch: {epoch}, Loss: {loss.item()}, Reconstruction Loss: {loss_dict['Reconstruction_Loss']}, KLD: {loss_dict['KLD']}")
 
 if __name__ == "__main__":
-    data_path = "/root/Research_Internship_at_GVlab/model/step1/sim_data_4dim.npy"  # specify the path to data
+    data_path = "/root/Research_Internship_at_GVlab/sim/data/pre-processed_sim_data.npy"  # specify the path to data
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load data and create DataLoader
-    data = load_data(data_path) # in paper (1000, 2, 200, 6)
+    data = load_data(data_path) # in paper (1000, 400, 6)
     dataset = TensorDataset(data, data) #TODO:using same data for x and t is correct?
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
