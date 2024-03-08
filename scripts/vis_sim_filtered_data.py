@@ -20,7 +20,7 @@ filtered_data = np.zeros_like(data)
 for i in range(data.shape[1]):
     filtered_data[:, i] = sosfilt(sos, data[:, i])
 
-# フィルタリング前後のデータをプロット
+# フィルタリング後のデータをプロット
 import matplotlib.pyplot as plt
 data = filtered_data[:, 0:3] #(400, 3)
 
@@ -33,5 +33,3 @@ ax.set_ylabel('Force')
 ax.legend()
 plt.show()
 
-# save the plot
-fig.savefig('/root/Research_Internship_at_GVlab/sim/data/sim_data_4dim.png')
