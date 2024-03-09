@@ -78,3 +78,18 @@ rosrun ur_control step2.py
 # rollout
 rosrun ur_control rollout.py
 ```
+
+## real robot execution (real ver)
+```
+(terminal 1)roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=163.220.51.112
+(terminal 2) rosrun ur_control ft_filter.py -t wrench
+
+# step1
+rosrun ur_control step1.py
+
+# step2
+rosrun ur_control step2.py
+
+# rollout
+rosrun ur_control rollout.py
+```
