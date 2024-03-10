@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.signal import butter, sosfilt
 from config.values import *
+import os
 
 # データのサンプリング周波数とカットオフ周波数を設定
 fs = 3000.0  # サンプリング周波数 (Hz)
@@ -10,6 +11,8 @@ fc = 110.0   # カットオフ周波数 (Hz)
 sos = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
 
 dir = '/root/Research_Internship_at_GVlab/sim/data/'
+if not os.path.exists(dir):
+    os.makedirs(dir)
 
 data_path = dir + 'sim_data_3dim.npy'
 data = np.load(data_path) #(1000, 400, 3)
