@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 from scripts.train.lfd_baseline import LfD
 from config.values import *
+import os
 
 def load_data(exp_action_data_path, demo_data_path):
     exp_action_data = np.load(exp_action_data_path)
@@ -44,8 +45,11 @@ def main():
     encoder_weights_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth'
 
     # save
-    model_path = '/root/Research_Internship_at_GVlab/real/model/baseline/baseline_model.pth'
-    decoder_path = '/root/Research_Internship_at_GVlab/real/model/baseline/baseline_decoder.pth'
+    dir = '/root/Research_Internship_at_GVlab/real/model/baseline/'
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    model_path = dir + 'baseline_model.pth'
+    decoder_path = dir + 'baseline_decoder.pth'
 
     #device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

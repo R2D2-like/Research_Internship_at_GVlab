@@ -70,8 +70,11 @@ vae_data_path = '/root/Research_Internship_at_GVlab/real/step1/data/exploratory_
 tcn_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed.npz'
 
 # save path
-model_path = '/root/Research_Internship_at_GVlab/real/model/proposed/proposed_model.pth'
-decoder_path = '/root/Research_Internship_at_GVlab/real/model/proposed/proposed_decoder.pth'
+dir = '/root/Research_Internship_at_GVlab/real/model/proposed/'
+if not os.path.exists(dir):
+    os.makedirs(dir)
+model_path = dir + 'proposed_model.pth'
+decoder_path = dir + 'proposed_decoder.pth'
 
 # load data
 vae_data, tcn_data = load_data(vae_data_path, tcn_data_path)
