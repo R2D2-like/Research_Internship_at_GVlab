@@ -11,7 +11,7 @@ elif mode == '1':
     mode = 'step2'
 else:
     mode = 'rollout'
-data_type = input('0:ft, 1:position: ')
+data_type = input('0:exploratory, 1:trajectory: ')
 stiffness = input('stiffness level (1, 2, 3, 4): ')
 friction = input('friction level (1, 2, 3): ')
 sponge = 's' + stiffness + 'f' + friction
@@ -71,19 +71,56 @@ if data_type == '0':
 
 elif data_type == '1':
     # Load the npy data
-    data_path = data_dir + sponge + '.npz'
-    data = np.load(data_path)[sponge]
-    # positionのx, y, zをプロット
-    fig, ax = plt.subplots()
-    ax.plot(data[:, 0], label='x')
-    ax.plot(data[:, 1], label='y')
-    ax.plot(data[:, 2], label='z')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Position')
-    ax.legend()
-    save_path = save_dir + sponge + '_position.png'
+    if mode == 'step2':
+        trial = input('trial (1, 2, 3, 5, 6): ')
+        data_path = data_dir + sponge + '_' + trial + '.npz'
+        save_path = save_dir + sponge + '_trajectory_' + trial + '.png'
+    elif mode == 'rollout':
+        data_path = data_dir + sponge + '.npz'
+        save_path = save_dir + sponge + '_trajectory.png'
+    pose_data = np.load(data_path)['pose']
+    ft_data = np.load(data_path)['ft']
+    # position と orientation と force と torque を並べてプロット
+    fig = plt.figure()
+    # position
+    ax1 = fig.add_subplot(221)
+    ax1.set_title('Position')
+    ax1.plot(pose_data[:, 0], label='x')
+    ax1.plot(pose_data[:, 1], label='y')
+    ax1.plot(pose_data[:, 2], label='z')
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Position')
+    ax1.legend()
+    # orientation
+    ax2 = fig.add_subplot(222)
+    ax2.set_title('Orientation')
+    ax2.plot(pose_data[:, 3], label='x')
+    ax2.plot(pose_data[:, 4], label='y')
+    ax2.plot(pose_data[:, 5], label='z')
+    ax2.plot(pose_data[:, 6], label='w')
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('Orientation')
+    ax2.legend()
+    # force
+    ax3 = fig.add_subplot(223)
+    ax3.set_title('Force')
+    ax3.plot(ft_data[:, 0], label='Fx')
+    ax3.plot(ft_data[:, 1], label='Fy')
+    ax3.plot(ft_data[:, 2], label='Fz')
+    ax3.set_xlabel('Time')
+    ax3.set_ylabel('Force')
+    ax3.legend()
+    # torque
+    ax4 = fig.add_subplot(224)
+    ax4.set_title('Torque')
+    ax4.plot(ft_data[:, 3], label='Tx')
+    ax4.plot(ft_data[:, 4], label='Ty')
+    ax4.plot(ft_data[:, 5], label='Tz')
+    ax4.set_xlabel('Time')
+    ax4.set_ylabel('Torque')
+    ax4.legend()
     fig.savefig(save_path)
-    plt.show()
+    plt.show()    
     
 
 
