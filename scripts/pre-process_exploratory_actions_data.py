@@ -37,35 +37,60 @@ if mode == '0':
     dir = '/root/Research_Internship_at_GVlab/real/step1/data/'
 else:
     dir = '/root/Research_Internship_at_GVlab/real/rollout/data/exploratory/'
+    DATA_PER_SPONGE = 1
 
+raw_dataset, filtered_dataset, preprocessed_dataset = {}, {}, {}
 for sponge in ALL_SPONGES_LIST:
-    pressing_path = dir + 'pressing/' + sponge + '.npz'
-    lateral_path = dir + 'lateral/' + sponge + '.npz'
-    if not os.path.exists(pressing_path) or not os.path.exists(lateral_path):
-        print('The data for', sponge, 'does not exist.')
-        continue
+    raw_data, filtered_data, preprocessed_data = None, None, None
+    for trial in range(1, DATA_PER_SPONGE+1):
+        if mode == '0':
+            pressing_path = dir + 'pressing/' + sponge + '_' + str(trial) + '.npz'
+            lateral_path = dir + 'lateral/' + sponge + '_' + str(trial) + '.npz'
+        else:
+            pressing_path = dir + sponge + '_pressing.npz'
+            lateral_path = dir + sponge + '_lateral.npz'
+        if not os.path.exists(pressing_path) or not os.path.exists(lateral_path):
+            print('The data for', sponge, 'does not exist.')
+            continue
 
-    # load data
-    pressing_data = np.load(pressing_path)[sponge] #(200, 6)
-    lateral_data = np.load(lateral_path)[sponge] #(200, 6)
+        # load data
+        pressing_data = np.load(pressing_path)[sponge] #(200, 6)
+        lateral_data = np.load(lateral_path)[sponge] #(200, 6)
 
-    # merge the data
-    raw_data = np.concatenate([pressing_data, lateral_data], axis=0) #(400, 6)
+        # merge and preprocess the data
+        merged = np.concatenate([pressing_data, lateral_data], axis=0) #(400, 6)
+        filtered, preprocessed = preprocess(merged) #(400, 6)
 
-    # save the data
-    raw_data_save_path = dir + sponge + '_raw.npz' 
-    np.savez(raw_data_save_path, **{sponge: raw_data})
+        if raw_data is None:
+            raw_data = np.expand_dims(merged, axis=0) #(1, 400, 6)
+        else:
+            raw_data = np.concatenate([raw_data, np.expand_dims(merged, axis=0)], axis=0)
 
-    # preprocess data
-    filtered_data, preprocessed_data = preprocess(raw_data) #(400, 6)
-    filtered_data_save_path = dir + sponge + '_filtered.npz'
-    preprocessed_data_save_path = dir + sponge + '_preprocessed.npz'
-    np.savez(filtered_data_save_path, **{sponge: filtered_data})
-    np.savez(preprocessed_data_save_path, **{sponge: preprocessed_data})
+        if filtered_data is None:
+            filtered_data = np.expand_dims(filtered, axis=0)
+        else:
+            filtered_data = np.concatenate([filtered_data, np.expand_dims(filtered, axis=0)], axis=0)
 
-    print('data shape:', raw_data.shape)
-    print('Raw data has been saved at\n', raw_data_save_path)
-    print('Filtered data has been saved at\n', filtered_data_save_path)
-    print('Preprocessed data has been saved at\n', preprocessed_data_save_path)
-    print('----------------------------------')
+        if preprocessed_data is None:
+            preprocessed_data = np.expand_dims(preprocessed, axis=0)
+        else:
+            preprocessed_data = np.concatenate([preprocessed_data, np.expand_dims(preprocessed, axis=0)], axis=0)
+        
+
+    raw_dataset[sponge] = raw_data #(DEMO_PER_SPONGE, 400, 6)
+    filtered_dataset[sponge] = filtered_data #(DEMO_PER_SPONGE, 400, 6)
+    preprocessed_dataset[sponge] = preprocessed_data #(DEMO_PER_SPONGE, 400, 6)
+
+# save as npz
+raw_data_save_path = dir + 'exploratory_action_raw.npz' 
+np.savez(raw_data_save_path, **raw_dataset)
+print('The raw dataset has been saved at\n', raw_data_save_path)
+
+filtered_data_save_path = dir + 'exploratory_action_filtered.npz'
+np.savez(filtered_data_save_path, **filtered_dataset)
+print('The filtered dataset has been saved at\n', filtered_data_save_path)
+
+preprocessed_data_save_path = dir + 'exploratory_action_preprocessed.npz'
+np.savez(preprocessed_data_save_path, **preprocessed_dataset)
+print('The preprocessed dataset has been saved at\n', preprocessed_data_save_path)
 
