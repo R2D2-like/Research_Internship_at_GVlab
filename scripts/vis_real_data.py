@@ -80,7 +80,15 @@ elif data_type == '1':
         data_path = data_dir + sponge + '_' + trial + '.npz'
         save_path = save_dir + sponge + '_trajectory_' + trial + '.png'
     elif mode == 'rollout':
-        data_path = data_dir + sponge + '.npz'
+        method = input('0:baseline, 1:proposed: ')
+        if method == '0':
+            data_path = data_dir + 'baseline/' + sponge + '.npz'
+            save_dir = save_dir + 'baseline/'
+        else:
+            data_path = data_dir + 'proposed/' + sponge + '.npz'
+            save_dir = save_dir + 'proposed/'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         save_path = save_dir + sponge + '_trajectory.png'
     pose_data = np.load(data_path)['pose']
     ft_data = np.load(data_path)['ft']
