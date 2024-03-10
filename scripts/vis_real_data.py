@@ -22,10 +22,14 @@ if not os.path.exists(save_dir):
 
 if data_type == '0':
     # Load the npz data
-    raw_data_path = data_dir + sponge + '_raw.npz'
-    filtered_data_path = data_dir + sponge + '_filtered.npz'
-    raw_data = np.load(raw_data_path)[sponge] #(400, 6)
-    filtered_data = np.load(filtered_data_path)[sponge] #(400, 6)
+    if mode == 'step1':
+        trial = int(input('trial (1, 2, 3, 5, 6, 7, 8): ')) - 1
+    elif mode == 'rollout':
+        trial = 0
+    raw_data_path = data_dir + 'exploratory_action_raw.npz'
+    filtered_data_path = data_dir + 'exploratory_action_filtered.npz'
+    raw_data = np.load(raw_data_path)[sponge][trial] #(400, 6)
+    filtered_data = np.load(filtered_data_path)[sponge][trial] #(400, 6)
 
     # rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)を並べてプロット
     fig = plt.figure()
@@ -72,7 +76,7 @@ if data_type == '0':
 elif data_type == '1':
     # Load the npy data
     if mode == 'step2':
-        trial = input('trial (1, 2, 3, 5, 6): ')
+        trial = input('trial (1, 2, 3, 5, 6, 7, 8): ')
         data_path = data_dir + sponge + '_' + trial + '.npz'
         save_path = save_dir + sponge + '_trajectory_' + trial + '.png'
     elif mode == 'rollout':
