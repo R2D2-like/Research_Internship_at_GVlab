@@ -2,12 +2,24 @@ import torch
 from torch import optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from lfd import LfD
+from scripts.train.lfd_baseline import LfD
+from config.values import *
 
-def load_data(data_path):
-    data = np.load(data_path)
-    inputs = torch.tensor(data['inputs'], dtype=torch.float32)
-    targets = torch.tensor(data['targets'], dtype=torch.float32)
+def load_data(exp_action_data_path, demo_data_path):
+    exp_action_data = np.load(exp_action_data_path)
+    demo_data = np.load(demo_data_path) 
+    inputs, targets = None, None
+    for sponge in TRAIN_SPONGES_LIST:
+        if inputs is None:
+            inputs = exp_action_data[sponge] #(DEMO_PER_SPONGE, 400, 6)
+            targets = demo_data[sponge] #(DEMO_PER_SPONGE, 9, 2000)
+            # (DEMO_PER_SPONGE, 9, 2000) -> (DEMO_PER_SPONGE, 2000, 9) 
+            targets = np.transpose(targets, (0, 2, 1)) #(DEMO_PER_SPONGE, 2000, 9)
+            # (DEMO_PER_SPONGE, 2000, 9) -> (DEMO_PER_SPONGE, 2000, 3)
+            targets = targets[:, :, :3] #(DEMO_PER_SPONGE, 2000, 3)
+        else:
+            inputs = np.concatenate([inputs, exp_action_data[sponge]], axis=0) #(len(TRAIN_SPONGES_LIST), 400, 6)
+            targets = np.concatenate([targets, demo_data[sponge]], axis=0) #(len(TRAIN_SPONGES_LIST), 2000, 3)
     return inputs, targets
 
 def train(model, data_loader, optimizer, device,num_epochs=10000):
@@ -26,16 +38,20 @@ def train(model, data_loader, optimizer, device,num_epochs=10000):
             print(f"Epoch {epoch}: Loss {loss.item()}")
 
 def main():
-    data_path = 'path/to/your/data.npz'
-    model_path = 'path/to/save/model.pth'
-    encoder_weights_path = 'path/to/saved/encoder.pth'
-    decoder_path = 'path/to/save/decoder.pth'
+    # load
+    exp_action_data_path = '/root/Research_Internship_at_GVlab/real/step1/data/exploratory_action_preprocessed.npz'
+    demo_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed.npz'
+    encoder_weights_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth'
+
+    # save
+    model_path = '/root/Research_Internship_at_GVlab/real/model/baseline/baseline_model.pth'
+    decoder_path = '/root/Research_Internship_at_GVlab/real/model/baseline/baseline_decoder.pth'
 
     #device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load data and create DataLoader
-    inputs, targets = load_data(data_path)
+    inputs, targets = load_data(exp_action_data_path, demo_data_path)
     dataset = TensorDataset(inputs, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
