@@ -52,6 +52,8 @@ def main():
 
     # load data and create DataLoader
     inputs, targets = load_data(exp_action_data_path, demo_data_path)
+    inputs = torch.tensor(inputs)
+    targets = torch.tensor(targets)
     dataset = TensorDataset(inputs, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
