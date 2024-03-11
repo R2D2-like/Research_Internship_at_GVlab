@@ -2,7 +2,7 @@ import numpy as np
 from config.values import *
 import os
 
-def calc_min_max():
+def calc_min_max(dir):
     for sponge in TRAIN_SPONGES_LIST:
         data = None
         for trial in range(1, DATA_PER_SPONGE+1):
@@ -41,8 +41,8 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
 
     return normalized_data.T #(9, 2000)
 
-min_val, max_val = calc_min_max()
 dir = '/root/Research_Internship_at_GVlab/real/step2/data/'
+min_val, max_val = calc_min_max(dir)
 
 dataset = {}
 for sponge in ALL_SPONGES_LIST:
