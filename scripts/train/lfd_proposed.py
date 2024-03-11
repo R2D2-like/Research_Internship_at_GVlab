@@ -11,7 +11,7 @@ class MotionDecoder(nn.Module):
     def __init__(self, vae_encoder_path, tcn_input_size=9, tcn_output_size=9, tcn_num_channels=[32, 64, 128, 256, 256, 516, 516], kernel_size=4, dropout=0.1, mlp_output_size=3):
         super(MotionDecoder, self).__init__()
         self.vae_encoder = VAE()  # VAEの初期化
-        self.vae_encoder.load_state_dict(torch.load(vae_encoder_path))  # 重みの読み込み
+        self.vae_encoder.load_state_dict(torch.load(vae_encoder_path), strict=False)  # 重みの読み込み
         for param in self.vae_encoder.parameters():  # エンコーダーの重みをフリーズ
             param.requires_grad = False
         
