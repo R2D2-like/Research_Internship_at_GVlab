@@ -23,6 +23,8 @@ data *= -1
 data = np.concatenate([data[:, :, 1:2], data[:, :, 0:1], data[:, :, 2:]], axis=2)
 # idx 3 と 4 を入れ替え
 data = np.concatenate([data[:, :, :3], data[:, :, 4:5], data[:, :, 3:4], data[:, :, 5:]], axis=2)
+# idx 3 と 4 の200ステップ〜400ステップの符号を反転
+data[:, 200:, 3:5] *= -1
 filtered_data = np.zeros_like(data)
 
 # 各列に対してローパスフィルタを適用
