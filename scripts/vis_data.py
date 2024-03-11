@@ -176,20 +176,34 @@ else:
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_path = save_dir + sponge + '_trajectory.png'
-        pose_data = np.load(data_path)['pose']
-        ft_data = np.load(data_path)['ft']
-        # position と orientation と force と torque を並べてプロット
-        fig = plt.figure()
-        # position
-        ax1 = fig.add_subplot(221)
-        ax1.set_title('Position')
-        ax1.plot(pose_data[:, 0], label='x')
-        ax1.plot(pose_data[:, 1], label='y')
-        ax1.plot(pose_data[:, 2], label='z')
-        ax1.set_xlabel('Time')
-        ax1.set_ylabel('Position')
-        ax1.legend()
-        if not (p_or_r == '0'):
+        if p_or_r == '0':
+            # eef_positionだけプロットする
+            eef_position_data =  np.load(data_path)['pose']
+            fig = plt.figure()
+            ax1 = fig.add_subplot(111)
+            ax1.set_title('End-effector Position')
+            ax1.plot(eef_position_data[:, 0], label='x')
+            ax1.plot(eef_position_data[:, 1], label='y')
+            ax1.plot(eef_position_data[:, 2], label='z')
+            ax1.set_xlabel('Time')
+            ax1.set_ylabel('Position')
+            ax1.legend()
+            fig.savefig(save_path)
+            plt.show()
+        else:    
+            pose_data = np.load(data_path)['pose']
+            ft_data = np.load(data_path)['ft']
+            # position と orientation と force と torque を並べてプロット
+            fig = plt.figure()
+            # position
+            ax1 = fig.add_subplot(221)
+            ax1.set_title('Position')
+            ax1.plot(pose_data[:, 0], label='x')
+            ax1.plot(pose_data[:, 1], label='y')
+            ax1.plot(pose_data[:, 2], label='z')
+            ax1.set_xlabel('Time')
+            ax1.set_ylabel('Position')
+            ax1.legend()
             # orientation
             ax2 = fig.add_subplot(222)
             ax2.set_title('Orientation')
@@ -218,8 +232,8 @@ else:
             ax4.set_xlabel('Time')
             ax4.set_ylabel('Torque')
             ax4.legend()
-        fig.savefig(save_path)
-        plt.show()    
+            fig.savefig(save_path)
+            plt.show()    
         
 
 
