@@ -2,8 +2,10 @@ import torch
 from torch import optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from scripts.train.lfd_baseline import LfD
-from config.values import *
+from lfd_baseline import LfD
+import sys
+sys.path.append('/root/Research_Internship_at_GVlab/scripts/config')
+from values import *
 import os
 
 def load_data(exp_action_data_path, demo_data_path):
