@@ -1,7 +1,7 @@
 import torch
 from torch import optim
 from torch.utils.data import DataLoader, TensorDataset
-from lfd_proposed import MotionDecoder
+from lfd_proposed import LfDProposed
 import numpy as np
 import sys
 sys.path.append('/root/Research_Internship_at_GVlab/scripts/config')
@@ -86,7 +86,7 @@ tcn_data = torch.tensor(tcn_data, dtype=torch.float32) # (N, 9, 2000)
 print(tcn_data.size())
 
 # モデル、損失関数、オプティマイザの設定
-model = MotionDecoder(vae_encoder_path=vae_encoder_path)
+model = LfDProposed(vae_encoder_path=vae_encoder_path)
 criterion = torch.nn.MSELoss()  # 平均二乗誤差損失
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
