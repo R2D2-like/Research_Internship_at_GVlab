@@ -41,6 +41,8 @@ for i in range(data.shape[0]):
 normalized_data *= SCALING_FACTOR
 
 # save the normalized data
+save_path = dir + 'sim_filtered.npy'
+np.save(save_path, filtered_data)
 save_path = dir + 'sim_preprocessed.npy'
 np.save(save_path, normalized_data)
 print('Data is saved at\n', save_path)
@@ -48,15 +50,3 @@ print('Copy the value below and paste it to config/values.py')
 print('EXPLORATORY_MIN =', min_val)
 print('EXPLORATORY_MAX =', max_val)
 
-# フィルタリング後のデータをプロット
-import matplotlib.pyplot as plt
-data = filtered_data[0, 0:3] 
-
-fig, ax = plt.subplots()
-ax.plot(data[:, 0], label='Fx')
-ax.plot(data[:, 1], label='Fy')
-ax.plot(data[:, 2], label='Fz')
-ax.set_xlabel('Time')
-ax.set_ylabel('Force')
-ax.legend()
-plt.show()
