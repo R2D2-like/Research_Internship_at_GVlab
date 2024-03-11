@@ -27,9 +27,9 @@ for i in range(data.shape[0]):
 max_val = []
 min_val = []
 
-for i in range(data.shape[2]):
-    max_val.append(np.max(data[:, :, i]))
-    min_val.append(np.min(data[:, :, i]))
+for i in range(filtered_data.shape[2]):
+    max_val.append(np.max(filtered_data[:, :, i]))
+    min_val.append(np.min(filtered_data[:, :, i]))
 
 normalized_data = np.zeros_like(filtered_data) #(1000, 400, 3)
 
