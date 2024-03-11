@@ -9,17 +9,19 @@ if env == '0':
     idx = int(input('idx: '))
     raw_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy' #(100, 400, 6)
     filtered_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_filtered.npy' #(100, 400, 6)
+    preprocessed_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_preprocessed.npy' #(100, 400, 6)
     raw_data = np.load(raw_data_path)[idx]
     filtered_data = np.load(filtered_data_path)[idx]
+    preprocessed_data = np.load(preprocessed_data_path)[idx]
 
     save_dir = '/root/Research_Internship_at_GVlab/fig/sim/'
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)を並べてプロット
+    # rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)とpreprocessedのforce(ax5), preprocessedのtorque(ax6)を並べてプロット
     fig = plt.figure()
     # rawのforce
-    ax1 = fig.add_subplot(221)
+    ax1 = fig.add_subplot(231)
     ax1.set_title('Raw Force')
     ax1.plot(raw_data[:, 0], label='Fx')
     ax1.plot(raw_data[:, 1], label='Fy')
@@ -28,7 +30,7 @@ if env == '0':
     ax1.set_ylabel('Force')
     ax1.legend()
     # rawのtorque
-    ax2 = fig.add_subplot(223)
+    ax2 = fig.add_subplot(234)
     ax2.set_title('Raw Torque')
     ax2.plot(raw_data[:, 3], label='Tx')
     ax2.plot(raw_data[:, 4], label='Ty')
@@ -37,7 +39,7 @@ if env == '0':
     ax2.set_ylabel('Torque')
     ax2.legend()
     # filteredのforce
-    ax3 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(232)
     ax3.set_title('Filtered Force')
     ax3.plot(filtered_data[:, 0], label='Fx')
     ax3.plot(filtered_data[:, 1], label='Fy')
@@ -46,7 +48,7 @@ if env == '0':
     ax3.set_ylabel('Force')
     ax3.legend()
     # filteredのtorque
-    ax4 = fig.add_subplot(224)
+    ax4 = fig.add_subplot(235)
     ax4.set_title('Filtered Torque')
     ax4.plot(filtered_data[:, 3], label='Tx')
     ax4.plot(filtered_data[:, 4], label='Ty')
@@ -54,6 +56,24 @@ if env == '0':
     ax4.set_xlabel('Time')
     ax4.set_ylabel('Torque')
     ax4.legend()
+    # preprocessedのforce
+    ax5 = fig.add_subplot(233)
+    ax5.set_title('Preprocessed Force')
+    ax5.plot(preprocessed_data[:, 0], label='Fx')
+    ax5.plot(preprocessed_data[:, 1], label='Fy')
+    ax5.plot(preprocessed_data[:, 2], label='Fz')
+    ax5.set_xlabel('Time')
+    ax5.set_ylabel('Force')
+    ax5.legend()
+    # preprocessedのtorque
+    ax6 = fig.add_subplot(236)
+    ax6.set_title('Preprocessed Torque')
+    ax6.plot(preprocessed_data[:, 3], label='Tx')
+    ax6.plot(preprocessed_data[:, 4], label='Ty')
+    ax6.plot(preprocessed_data[:, 5], label='Tz')
+    ax6.set_xlabel('Time')
+    ax6.set_ylabel('Torque')
+    ax6.legend()
     save_path = save_dir + 'sim_' + str(idx) + '_ft.png'
     fig.savefig(save_path)
     plt.show()
