@@ -15,7 +15,14 @@ if not os.path.exists(dir):
     os.makedirs(dir)
 
 data_path = dir + 'sim_data_3dim.npy'
-data = np.load(data_path) #(1000, 400, 3)
+data = np.load(data_path) #(1000, 400, 6)
+
+# convert to adapt to real robot configuration
+data *= -1
+# idx 0 と 1 を入れ替え
+data = np.concatenate([data[:, :, 1:2], data[:, :, 0:1], data[:, :, 2:]], axis=2)
+# idx 3 と 4 を入れ替え
+data = np.concatenate([data[:, :, :3], data[:, :, 4:5], data[:, :, 3:4], data[:, :, 5:]], axis=2)
 filtered_data = np.zeros_like(data)
 
 # 各列に対してローパスフィルタを適用
