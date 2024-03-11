@@ -47,8 +47,8 @@ for sponge in ALL_SPONGES_LIST:
             pressing_path = dir + 'pressing/' + sponge + '_' + str(trial) + '.npz'
             lateral_path = dir + 'lateral/' + sponge + '_' + str(trial) + '.npz'
         else:
-            pressing_path = dir + sponge + '_pressing.npz'
-            lateral_path = dir + sponge + '_lateral.npz'
+            pressing_path = dir + 'pressing/' + sponge + '.npz'
+            lateral_path = dir + 'lateral/' + sponge + '.npz'
         if not os.path.exists(pressing_path) or not os.path.exists(lateral_path):
             print('The data for', sponge, 'does not exist.')
             continue
