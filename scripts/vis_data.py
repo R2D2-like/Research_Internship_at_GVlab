@@ -162,14 +162,14 @@ else:
             if method == '0':
                 if p_or_r == '0':
                     data_path = data_dir + 'baseline/predicted/' + sponge + '.npz'
-                    save_dir = save_dir + 'baseline/predicted'
+                    save_dir = save_dir + 'baseline/predicted/'
                 else:
                     data_path = data_dir + 'baseline/result/' + sponge + '.npz'
                     save_dir = save_dir + 'baseline/result/'
             else:
                 if p_or_r == '0':
                     data_path = data_dir + 'proposed/predicted/' + sponge + '.npz'
-                    save_dir = save_dir + 'proposed/predicted'
+                    save_dir = save_dir + 'proposed/predicted/'
                 else:
                     data_path = data_dir + 'proposed/result/' + sponge + '.npz'
                     save_dir = save_dir + 'proposed/result/'
@@ -178,7 +178,7 @@ else:
             save_path = save_dir + sponge + '_trajectory.png'
         if p_or_r == '0':
             # eef_positionだけプロットする
-            eef_position_data =  np.load(data_path)['pose']
+            eef_position_data =  np.load(data_path)['eef_position'][0]
             fig = plt.figure()
             ax1 = fig.add_subplot(111)
             ax1.set_title('End-effector Position')
