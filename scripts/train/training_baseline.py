@@ -58,8 +58,8 @@ def main():
 
     # load data and create DataLoader
     inputs, targets = load_data(exp_action_data_path, demo_data_path)
-    inputs = torch.tensor(inputs)
-    targets = torch.tensor(targets)
+    inputs = torch.tensor(inputs, dtype=torch.float32)
+    targets = torch.tensor(targets, dtype=torch.float32)
     dataset = TensorDataset(inputs, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
