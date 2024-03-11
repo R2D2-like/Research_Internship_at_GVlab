@@ -10,7 +10,7 @@ from torch import Tensor
 from vae import VAE
 
 
-class LfD(VAE):
+class LfDBaseline(VAE):
 
     def __init__(self,
                  input_dim: int = 6,
