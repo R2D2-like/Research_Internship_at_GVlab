@@ -150,6 +150,7 @@ else:
         plt.show()
 
     elif data_type == '1':
+        p_or_r = None
         # Load the npy data
         if mode == 'step2':
             trial = input('trial (1, 2, 3, 5, 6, 7, 8): ')
@@ -188,34 +189,35 @@ else:
         ax1.set_xlabel('Time')
         ax1.set_ylabel('Position')
         ax1.legend()
-        # orientation
-        ax2 = fig.add_subplot(222)
-        ax2.set_title('Orientation')
-        ax2.plot(pose_data[:, 3], label='x')
-        ax2.plot(pose_data[:, 4], label='y')
-        ax2.plot(pose_data[:, 5], label='z')
-        ax2.plot(pose_data[:, 6], label='w')
-        ax2.set_xlabel('Time')
-        ax2.set_ylabel('Orientation')
-        ax2.legend()
-        # force
-        ax3 = fig.add_subplot(223)
-        ax3.set_title('Force')
-        ax3.plot(ft_data[:, 0], label='Fx')
-        ax3.plot(ft_data[:, 1], label='Fy')
-        ax3.plot(ft_data[:, 2], label='Fz')
-        ax3.set_xlabel('Time')
-        ax3.set_ylabel('Force')
-        ax3.legend()
-        # torque
-        ax4 = fig.add_subplot(224)
-        ax4.set_title('Torque')
-        ax4.plot(ft_data[:, 3], label='Tx')
-        ax4.plot(ft_data[:, 4], label='Ty')
-        ax4.plot(ft_data[:, 5], label='Tz')
-        ax4.set_xlabel('Time')
-        ax4.set_ylabel('Torque')
-        ax4.legend()
+        if not (p_or_r == '0'):
+            # orientation
+            ax2 = fig.add_subplot(222)
+            ax2.set_title('Orientation')
+            ax2.plot(pose_data[:, 3], label='x')
+            ax2.plot(pose_data[:, 4], label='y')
+            ax2.plot(pose_data[:, 5], label='z')
+            ax2.plot(pose_data[:, 6], label='w')
+            ax2.set_xlabel('Time')
+            ax2.set_ylabel('Orientation')
+            ax2.legend()
+            # force
+            ax3 = fig.add_subplot(223)
+            ax3.set_title('Force')
+            ax3.plot(ft_data[:, 0], label='Fx')
+            ax3.plot(ft_data[:, 1], label='Fy')
+            ax3.plot(ft_data[:, 2], label='Fz')
+            ax3.set_xlabel('Time')
+            ax3.set_ylabel('Force')
+            ax3.legend()
+            # torque
+            ax4 = fig.add_subplot(224)
+            ax4.set_title('Torque')
+            ax4.plot(ft_data[:, 3], label='Tx')
+            ax4.plot(ft_data[:, 4], label='Ty')
+            ax4.plot(ft_data[:, 5], label='Tz')
+            ax4.set_xlabel('Time')
+            ax4.set_ylabel('Torque')
+            ax4.legend()
         fig.savefig(save_path)
         plt.show()    
         
