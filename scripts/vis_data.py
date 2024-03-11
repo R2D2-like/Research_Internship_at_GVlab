@@ -86,11 +86,11 @@ else:
         mode = 'step2'
     else:
         mode = 'rollout'
+    data_dir = '/root/Research_Internship_at_GVlab/real/' + mode + '/data/'
     data_type = input('0:exploratory, 1:trajectory: ')
     stiffness = input('stiffness level (1, 2, 3, 4): ')
     friction = input('friction level (1, 2, 3): ')
     sponge = 's' + stiffness + 'f' + friction
-    data_dir = '/root/Research_Internship_at_GVlab/real/' + mode + '/data/'
     save_dir = '/root/Research_Internship_at_GVlab/fig/' + mode + '/' 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -101,6 +101,7 @@ else:
             trial = int(input('trial (1, 2, 3, 5, 6, 7, 8): ')) - 1
         elif mode == 'rollout':
             trial = 0
+            data_dir += 'exploratory/'
         raw_data_path = data_dir + 'exploratory_action_raw.npz'
         filtered_data_path = data_dir + 'exploratory_action_filtered.npz'
         raw_data = np.load(raw_data_path)[sponge][trial] #(400, 6)
@@ -156,12 +157,21 @@ else:
             save_path = save_dir + sponge + '_trajectory_' + trial + '.png'
         elif mode == 'rollout':
             method = input('0:baseline, 1:proposed: ')
+            p_or_r = input('0:predicted, 1:result: ')
             if method == '0':
-                data_path = data_dir + 'baseline/' + sponge + '.npz'
-                save_dir = save_dir + 'baseline/'
+                if p_or_r == '0':
+                    data_path = data_dir + 'baseline/predicted/' + sponge + '.npz'
+                    save_dir = save_dir + 'baseline/predicted'
+                else:
+                    data_path = data_dir + 'baseline/result/' + sponge + '.npz'
+                    save_dir = save_dir + 'baseline/result/'
             else:
-                data_path = data_dir + 'proposed/' + sponge + '.npz'
-                save_dir = save_dir + 'proposed/'
+                if p_or_r == '0':
+                    data_path = data_dir + 'proposed/predicted/' + sponge + '.npz'
+                    save_dir = save_dir + 'proposed/predicted'
+                else:
+                    data_path = data_dir + 'proposed/result/' + sponge + '.npz'
+                    save_dir = save_dir + 'proposed/result/'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_path = save_dir + sponge + '_trajectory.png'
