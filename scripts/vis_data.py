@@ -8,11 +8,13 @@ env = input('0:sim, 1:real: ')
 if env == '0':
     idx = int(input('idx: '))
     raw_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy' #(100, 400, 6)
-    filtered_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_preprocessed.npy' #(100, 400, 6)
+    filtered_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_filtered.npy' #(100, 400, 6)
     raw_data = np.load(raw_data_path)[idx]
     filtered_data = np.load(filtered_data_path)[idx]
 
     save_dir = '/root/Research_Internship_at_GVlab/fig/sim/'
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
     # rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)を並べてプロット
     fig = plt.figure()
