@@ -80,8 +80,8 @@ tcn_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preproc
 dir = '/root/Research_Internship_at_GVlab/real/model/proposed/'
 if not os.path.exists(dir):
     os.makedirs(dir)
-model_path = dir + 'proposed_model2.pth'
-decoder_path = dir + 'proposed_decoder2.pth'
+model_path = dir + 'proposed_model3.pth'
+decoder_path = dir + 'proposed_decoder3.pth'
 
 # load data
 vae_data, tcn_data, target_data = load_data(vae_data_path, tcn_data_path)
