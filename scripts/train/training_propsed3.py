@@ -17,13 +17,13 @@ def load_data(vae_data_path, tcn_data_path):
         if vae_data is None:
             vae_data = exp_action_data[sponge] #(DATA_PER_SPONGE, 400, 6)
             target_data = demo_data[sponge] #(DATA_PER_SPONGE, 9, 2000)
-            #(DATA_PER_SPONGE, 9, 2000) -> (DATA_PER_SPONGE, 8, 2000)に変更 (idx 2のデータを取り除く)
-            tcn_data = np.delete(target_data, 2, axis=1) # (DATA_PER_SPONGE, 8, 2000)
+            #(DATA_PER_SPONGE, 9, 2000) -> (DATA_PER_SPONGE, 6, 2000)に変更 (idx 0~2のデータを取り除く)
+            tcn_data = target_data[:, 3:, :] # (DATA_PER_SPONGE, 6, 2000)
 
         else:
             vae_data = np.concatenate([vae_data, exp_action_data[sponge]], axis=0)
             target_data = np.concatenate([target_data, demo_data[sponge]], axis=0)
-            tcn_data = np.concatenate([tcn_data, np.delete(target_data, 2, axis=1)], axis=0)
+            tcn_data = np.concatenate([tcn_data, target_data[:, 3:, :]], axis=0)
 
     return vae_data, tcn_data, target_data
 
@@ -47,9 +47,9 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
     # 対応するvae_dataを取得
     vae_inputs = vae_data[vae_indices]
 
-    tcn_inputs = torch.zeros(batch_size, 8, fixed_T_length)
+    tcn_inputs = torch.zeros(batch_size, 6, fixed_T_length)
     end_indices = torch.randint(0, tcn_data.shape[2], (batch_size,))
-    targets = torch.zeros(batch_size, 3)
+    targets = torch.zeros(batch_size, 1)
     for i, idx in enumerate(tcn_indices):
         # データの選択範囲をランダムに設定（終点は最後から固定長を引いた位置）
         end_index = end_indices[i].item()
@@ -59,11 +59,8 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
         # tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
         # 足りない部分は0で埋める
         tcn_inputs[i, :, :end_index-start_index] = tcn_data[idx, :, start_index:end_index]
-        # ターゲットをTCN入力データの次のタイムステップから生成
-        # x,y(idx=0,1)は絶対値を取る
-        targets[i][:2] = target_data[idx, :2, end_index]
-        # z(idx=2)は次のタイムステップの値-現在のタイムステップの値の差を取る
-        targets[i][2] = target_data[idx, 2, end_index] - target_data[idx, 2, end_index-1]
+        # ターゲットは次のタイムステップのzの値-直近のzの値
+        targets[i] = target_data[idx, 2, end_index] - target_data[idx, 2, end_index-1]
         
 
     return vae_inputs, tcn_inputs, targets
@@ -81,7 +78,7 @@ dummy_targets = torch.randn(batch_size, 3)
 # load path
 vae_encoder_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth' # VAEのエンコーダーの重みへのパス
 vae_data_path = '/root/Research_Internship_at_GVlab/real/step1/data/exploratory_action_preprocessed.npz'
-tcn_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed2.npz'
+tcn_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed3.npz'
 
 # save path
 dir = '/root/Research_Internship_at_GVlab/real/model/proposed/'
@@ -99,7 +96,7 @@ target_data = torch.tensor(target_data, dtype=torch.float32) # (N, 9, 2000)
 print(tcn_data.size())
 
 # モデル、損失関数、オプティマイザの設定
-model = LfDProposed(vae_encoder_path=vae_encoder_path, tcn_input_size=8)
+model = LfDProposed(vae_encoder_path=vae_encoder_path, tcn_input_size=6)
 criterion = torch.nn.MSELoss()  # 平均二乗誤差損失
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 

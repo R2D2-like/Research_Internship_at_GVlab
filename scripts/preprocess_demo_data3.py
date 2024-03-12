@@ -34,11 +34,10 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
 
     # normalized the data
     for i in range(data.shape[1]):
-        if i == 2:  # そのまま
-            normalized_data[:, i] = data[:, i]
         normalized_data[:, i] = (data[:, i] - min_val[i]) / (max_val[i] - min_val[i])
-        # [0, 0.9]に正規化
-        normalized_data[:, i] = normalized_data[:, i] * SCALING_FACTOR
+
+    # [0, 0.9]に正規化
+    normalized_data = normalized_data * SCALING_FACTOR
 
     return normalized_data.T #(9, 2000)
 
@@ -72,8 +71,8 @@ for sponge in ALL_SPONGES_LIST:
     dataset[sponge] = data #(DEMO_PER_SPONGE, 9, 2000)
 
 # save as npz
-np.savez(dir + 'demo_preprocessed2.npz', **dataset)
-print('The preprocessed data has been saved at\n', dir + 'demo_preprocessed2.npz')
+np.savez(dir + 'demo_preprocessed3.npz', **dataset)
+print('The preprocessed data has been saved at\n', dir + 'demo_preprocessed3.npz')
 
 print('Copy the value below and paste it to config/values.py')
 print('DEMO_TRAJECTORY_MIN =', min_val[:3])
