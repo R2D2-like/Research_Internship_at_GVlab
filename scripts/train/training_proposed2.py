@@ -38,7 +38,7 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
 
     return: vae_inputs, tcn_inputs, targets
     '''
-    fixed_T_length = 100  # TCNの入力データの固定長
+    fixed_T_length = 2000  # TCNの入力データの固定長
     
     # TCNデータ用のインデックスを選択し、固定長を適用
     tcn_indices = torch.randint(0, tcn_data.shape[0], (batch_size,))
@@ -48,12 +48,14 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
     vae_inputs = vae_data[vae_indices]
 
     tcn_inputs = torch.zeros(batch_size, 8, fixed_T_length)
-    end_indices = torch.randint(fixed_T_length, tcn_data.shape[2], (batch_size,))
+    end_indices = torch.randint(0, tcn_data.shape[2], (batch_size,))
     targets = torch.zeros(batch_size, 3)
     for i, idx in enumerate(tcn_indices):
         # データの選択範囲をランダムに設定（終点は最後から固定長を引いた位置）
         end_index = end_indices[i].item()
         start_index = end_index - fixed_T_length
+        if start_index < 0:
+            start_index = 0
         tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
         # ターゲットをTCN入力データの次のタイムステップから生成
         # x,y(idx=0,1)は絶対値を取る
