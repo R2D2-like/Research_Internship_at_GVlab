@@ -56,7 +56,9 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
         start_index = end_index - fixed_T_length
         if start_index < 0:
             start_index = 0
-        tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
+        # tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
+        # 足りない部分は0で埋める
+        tcn_inputs[i, :, :end_index-start_index] = tcn_data[idx, :, start_index:end_index]
         # ターゲットをTCN入力データの次のタイムステップから生成
         # x,y(idx=0,1)は絶対値を取る
         targets[i][:2] = target_data[idx, :2, end_index]
