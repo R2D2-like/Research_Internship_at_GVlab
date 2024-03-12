@@ -12,7 +12,7 @@ def calc_min_max(dir):
                 exit()
 
             # load data
-            pose = np.load(data_path)['pose'][::20] #(100, 7)
+            pose = np.load(t6)['pose'][::20] #(100, 7)
             ft = np.load(data_path)['ft'][::20] #(100, 6)
             position = pose[:, :3] #(100, 3)
             # concat position and ft
@@ -35,6 +35,9 @@ def preprocess(data, min_val, max_val):  # (100, 9)
     # normalized the data
     for i in range(data.shape[1]):
         normalized_data[:, i] = (data[:, i] - min_val[i]) / (max_val[i] - min_val[i])
+        if np.any(normalized_data[:, i] > 1) or np.any(normalized_data[:, i] < 0):
+            print('The data is not normalized properly.')
+            exit()
 
     # [0, 0.9]に正規化
     normalized_data = normalized_data * SCALING_FACTOR
