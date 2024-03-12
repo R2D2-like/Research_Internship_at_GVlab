@@ -28,3 +28,7 @@ ax3.plot(ft[5], label='Tz')
 ax3.set_xlabel('Time')
 ax3.set_ylabel('Torque')
 ax3.legend()
+
+save_path = '/root/Research_Internship_at_GVlab/fig/demo_preprocessed_z_diff_ft_s2f2.png'
+fig.savefig(save_path)
+plt.show()
