@@ -16,9 +16,9 @@ def load_data(vae_data_path, tcn_data_path):
     for sponge in TRAIN_SPONGES_LIST:
         if vae_data is None:
             vae_data = exp_action_data[sponge] #(DATA_PER_SPONGE, 400, 6)
-            target_data = demo_data[sponge] #(DATA_PER_SPONGE, 9, 2000)
-            #(DATA_PER_SPONGE, 9, 2000) -> (DATA_PER_SPONGE, 6, 2000)に変更 (idx 0~2のデータを取り除く)
-            tcn_data = target_data[:, 3:, :] # (DATA_PER_SPONGE, 6, 2000)
+            target_data = demo_data[sponge] #(DATA_PER_SPONGE, 9, 100)
+            #(DATA_PER_SPONGE, 9, 100) -> (DATA_PER_SPONGE, 6, 100)に変更 (idx 0~2のデータを取り除く)
+            tcn_data = target_data[:, 3:, :] # (DATA_PER_SPONGE, 6, 100)
 
         else:
             vae_data = np.concatenate([vae_data, exp_action_data[sponge]], axis=0)
@@ -29,7 +29,7 @@ def load_data(vae_data_path, tcn_data_path):
 
 def data_loader(vae_data, tcn_data, target_data, batch_size=32):
     '''
-    vae_data は (N, 400, 6), tcn_data は (N, 9, 2000) の形状のテンソル
+    vae_data は (N, 400, 6), tcn_data は (N, 9, 100) の形状のテンソル
     (N=len(TRAIN_SPONGES_LIST)*DATA_PER_SPONGE)
     
     ・vae_encoderの入力データは(B, 400, 6)
@@ -38,7 +38,7 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
 
     return: vae_inputs, tcn_inputs, targets
     '''
-    fixed_T_length = 2000  # TCNの入力データの固定長
+    fixed_T_length = 5  # TCNの入力データの固定長
     
     # TCNデータ用のインデックスを選択し、固定長を適用
     tcn_indices = torch.randint(0, tcn_data.shape[0], (batch_size,))
@@ -48,30 +48,26 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
     vae_inputs = vae_data[vae_indices]
 
     tcn_inputs = torch.zeros(batch_size, 6, fixed_T_length)
-    end_indices = torch.randint(0, tcn_data.shape[2], (batch_size,))
+    end_indices = torch.randint(fixed_T_length, tcn_data.shape[2], (batch_size,))
     targets = torch.zeros(batch_size, 1)
     for i, idx in enumerate(tcn_indices):
         # データの選択範囲をランダムに設定（終点は最後から固定長を引いた位置）
         end_index = end_indices[i].item()
         start_index = end_index - fixed_T_length
-        if start_index < 0:
-            start_index = 0
-        # tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
-        # 足りない部分は0で埋める
-        tcn_inputs[i, :, :end_index-start_index] = tcn_data[idx, :, start_index:end_index]
+        tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
         # ターゲットは次のタイムステップのzの値-直近のzの値
         targets[i] = target_data[idx, 2, end_index] - target_data[idx, 2, end_index-1]
-        
+        print(targets[i])
 
     return vae_inputs, tcn_inputs, targets
 
-# VAEの入力: (B, 400, 6), TCNの入力: (B, 9, 2000), 正解データ: (B, 3)
+# VAEの入力: (B, 400, 6), TCNの入力: (B, 9, 100), 正解データ: (B, 3)
 batch_size = 32
 
 '''
 # ダミーデータセットの作成
 dummy_vae_input = torch.randn(batch_size, 400, 6)
-dummy_tcn_input = torch.randn(batch_size, 9, 2000)
+dummy_tcn_input = torch.randn(batch_size, 9, 100)
 dummy_targets = torch.randn(batch_size, 3)
 '''
 
@@ -91,8 +87,8 @@ decoder_path = dir + 'proposed_decoder2.pth'
 vae_data, tcn_data, target_data = load_data(vae_data_path, tcn_data_path)
 
 vae_data = torch.tensor(vae_data, dtype=torch.float32) # (N, 400, 6)
-tcn_data = torch.tensor(tcn_data, dtype=torch.float32) # (N, 8, 2000)
-target_data = torch.tensor(target_data, dtype=torch.float32) # (N, 9, 2000)
+tcn_data = torch.tensor(tcn_data, dtype=torch.float32) # (N, 8, 100)
+target_data = torch.tensor(target_data, dtype=torch.float32) # (N, 9, 100)
 print(tcn_data.size())
 
 # モデル、損失関数、オプティマイザの設定
@@ -106,7 +102,7 @@ model.to(device)
 model.train()  # モデルを訓練モードに設定
 
 # 学習ループ
-num_epochs = 1000  # エポック数
+num_epochs = 500  # エポック数
 for epoch in range(num_epochs):
     vae_inputs, tcn_inputs, targets = data_loader(vae_data, tcn_data, target_data, batch_size)
     vae_inputs, tcn_inputs, targets = vae_inputs.to(device), tcn_inputs.to(device), targets.to(device)

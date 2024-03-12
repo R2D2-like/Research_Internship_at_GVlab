@@ -12,15 +12,15 @@ def calc_min_max(dir):
                 exit()
 
             # load data
-            pose = np.load(data_path)['pose'] #(2000, 7)
-            ft = np.load(data_path)['ft'] #(2000, 6)
-            position = pose[:, :3] #(2000, 3)
+            pose = np.load(data_path)['pose'] #(100, 7)
+            ft = np.load(data_path)['ft'] #(100, 6)
+            position = pose[:, :3] #(100, 3)
             # concat position and ft
-            position_ft = np.concatenate([position, ft], axis=1) #(2000, 9)
+            position_ft = np.concatenate([position, ft], axis=1) #(100, 9)
             if data is None:
-                data = np.expand_dims(position_ft, axis=0) #(1, 2000, 9)
+                data = np.expand_dims(position_ft, axis=0) #(1, 100, 9)
             else:
-                data = np.concatenate([data, np.expand_dims(position_ft, axis=0)], axis=0) #(trial, 2000, 9)
+                data = np.concatenate([data, np.expand_dims(position_ft, axis=0)], axis=0) #(trial, 100, 9)
     
     min_val, max_val = [], []
     for i in range(data.shape[2]):
@@ -29,8 +29,8 @@ def calc_min_max(dir):
 
     return min_val, max_val
 
-def preprocess(data, min_val, max_val):  # (2000, 9)
-    normalized_data = np.zeros_like(data) # (2000, 9)
+def preprocess(data, min_val, max_val):  # (100, 9)
+    normalized_data = np.zeros_like(data) # (100, 9)
 
     # normalized the data
     for i in range(data.shape[1]):
@@ -39,7 +39,7 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
     # [0, 0.9]に正規化
     normalized_data = normalized_data * SCALING_FACTOR
 
-    return normalized_data.T #(9, 2000)
+    return normalized_data.T #(9, 100)
 
 dir = '/root/Research_Internship_at_GVlab/real/step2/data/'
 min_val, max_val = calc_min_max(dir)
@@ -54,21 +54,24 @@ for sponge in ALL_SPONGES_LIST:
             exit()
 
         # load data
-        pose = np.load(data_path)['pose'] #(2000, 7)
-        ft = np.load(data_path)['ft'] #(2000, 6)
-        position = pose[:, :3] #(2000, 3)
+        pose = np.load(data_path)['pose'] #(100, 7)
+        ft = np.load(data_path)['ft'] #(100, 6)
+        # 1/20にダウンサンプリング
+        pose = pose[::20]
+        ft = ft[::20]
+        position = pose[:, :3] #(100, 3)
         # concat position and ft
-        position_ft = np.concatenate([position, ft], axis=1) #(2000, 9)
+        position_ft = np.concatenate([position, ft], axis=1) #(100, 9)
 
-        preprocessed_data = preprocess(position_ft, min_val, max_val) #(9, 2000)
+        preprocessed_data = preprocess(position_ft, min_val, max_val) #(9, 100)
 
         # merge the data
         if data is None:
-            data = np.expand_dims(preprocessed_data, axis=0) #(1, 9, 2000)
+            data = np.expand_dims(preprocessed_data, axis=0) #(1, 9, 100)
         else:
-            data = np.concatenate([data, np.expand_dims(preprocessed_data, axis=0)], axis=0) #(trial, 9, 2000)
+            data = np.concatenate([data, np.expand_dims(preprocessed_data, axis=0)], axis=0) #(trial, 9, 100)
     
-    dataset[sponge] = data #(DEMO_PER_SPONGE, 9, 2000)
+    dataset[sponge] = data #(DEMO_PER_SPONGE, 9, 100)
 
 # save as npz
 np.savez(dir + 'demo_preprocessed3.npz', **dataset)
