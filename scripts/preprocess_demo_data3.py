@@ -12,8 +12,8 @@ def calc_min_max(dir):
                 exit()
 
             # load data
-            pose = np.load(data_path)['pose'] #(100, 7)
-            ft = np.load(data_path)['ft'] #(100, 6)
+            pose = np.load(data_path)['pose'][::20] #(100, 7)
+            ft = np.load(data_path)['ft'][::20] #(100, 6)
             position = pose[:, :3] #(100, 3)
             # concat position and ft
             position_ft = np.concatenate([position, ft], axis=1) #(100, 9)
