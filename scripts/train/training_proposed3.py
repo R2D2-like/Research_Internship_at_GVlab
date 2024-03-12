@@ -96,7 +96,7 @@ target_data = torch.tensor(target_data, dtype=torch.float32) # (N, 9, 2000)
 print(tcn_data.size())
 
 # モデル、損失関数、オプティマイザの設定
-model = LfDProposed(vae_encoder_path=vae_encoder_path, tcn_input_size=6, tcn_output_size=1)
+model = LfDProposed(vae_encoder_path=vae_encoder_path, tcn_input_size=6, tcn_output_size=7, mlp_output_size=1)
 criterion = torch.nn.MSELoss()  # 平均二乗誤差損失
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
