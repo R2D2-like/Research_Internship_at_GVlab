@@ -40,8 +40,8 @@ for i in range(ft_data.shape[2]):
 # normalize the data
 normalized_dataset = {}
 for sponge in TRAIN_SPONGES_LIST:
-    normalized_z_diff = (dataset[sponge]['z_diff'] - min_z_diff) / (max_z_diff - min_z_diff) #(trial, 99)
-    normalized_ft = (dataset[sponge]['ft'] - min_ft) / (max_ft - min_ft) #(trial, 100, 6)
+    normalized_z_diff = (np.array(dataset[sponge]['z_diff']) - min_z_diff) / (max_z_diff - min_z_diff) #(trial, 99)
+    normalized_ft = (np.array(dataset[sponge]['ft'] - min_ft)) / (np.array(max_ft) - np.array(min_ft)) #(trial, 100, 6)
     # [0, 0.9]に正規化
     normalized_z_diff = normalized_z_diff * SCALING_FACTOR
     normalized_ft = normalized_ft * SCALING_FACTOR
