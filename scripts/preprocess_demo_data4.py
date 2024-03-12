@@ -38,7 +38,8 @@ for i in range(ft_data.shape[2]):
     min_ft.append(np.min(ft_data[:, :, i]))
 
 # normalize the data
-normalized_dataset = {}
+z_diff_dataset = {}
+ft_dataset = {}
 for sponge in TRAIN_SPONGES_LIST:
     normalized_z_diff = (np.array(dataset[sponge]['z_diff']) - min_z_diff) / (max_z_diff - min_z_diff) #(trial, 99)
     normalized_ft = (np.array(dataset[sponge]['ft'] - min_ft)) / (np.array(max_ft) - np.array(min_ft)) #(trial, 100, 6)
@@ -47,10 +48,12 @@ for sponge in TRAIN_SPONGES_LIST:
     normalized_ft = normalized_ft * SCALING_FACTOR
     # (trial, 100, 6) -> (trial, 6, 100)
     normalized_ft = normalized_ft.transpose(0, 2, 1)
-    normalized_dataset[sponge] = {'z_diff': normalized_z_diff, 'ft': normalized_ft}
+    z_diff_dataset[sponge] = normalized_z_diff
+    ft_dataset[sponge] = normalized_ft
 
 # save as npz
-np.savez(dir + 'demo_preprocessed4.npz', **normalized_dataset)
+np.savez(dir + 'demo_preprocessed_z_diff.npz', **z_diff_dataset)
+np.savez(dir + 'demo_preprocessed_ft.npz', **ft_dataset)
 print('Copy the value below and paste it to config/values.py')
 print('DEMO_Z_DIFF_MIN =', min_z_diff)
 print('DEMO_Z_DIFF_MAX =', max_z_diff)
