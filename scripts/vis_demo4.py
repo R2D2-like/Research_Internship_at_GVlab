@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 z_diff_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_z_diff.npz'
 ft_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_ft.npz'
-z_diff = np.load(z_diff_data_path)['s2f2'][0] #(99,)
-ft = np.load(ft_data_path)['s2f2'][0] #(6, 100)
+z_diff = np.load(z_diff_data_path)['s1f1'][9] #(99,)
+ft = np.load(ft_data_path)['s1f1'][9] #(6, 100)
+print(ft.shape)
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax1.set_title('Z displacement')

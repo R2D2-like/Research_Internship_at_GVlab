@@ -34,7 +34,7 @@ def data_loader(vae_data, tcn_data, batch_size=32):
 
     return: vae_inputs, tcn_inputs, targets
     '''
-    fixed_T_length = 100  # TCNの入力データの固定長
+    fixed_T_length = 300  # TCNの入力データの固定長
     
     # TCNデータ用のインデックスを選択し、固定長を適用
     tcn_indices = torch.randint(0, tcn_data.shape[0], (batch_size,))

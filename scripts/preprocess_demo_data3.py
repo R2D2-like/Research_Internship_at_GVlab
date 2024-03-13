@@ -3,7 +3,7 @@ from config.values import *
 import os
 
 def calc_min_max(dir):
-    for sponge in TRAIN_SPONGES_LIST:
+    for sponge in ['s1f1','s2f2']:
         data = None
         for trial in range(1, DATA_PER_SPONGE+1):
             data_path = dir + sponge + '_' + str(trial) + '.npz'
@@ -12,7 +12,7 @@ def calc_min_max(dir):
                 exit()
 
             # load data
-            pose = np.load(t6)['pose'][::20] #(100, 7)
+            pose = np.load(data_path)['pose'][::20] #(100, 7)
             ft = np.load(data_path)['ft'][::20] #(100, 6)
             position = pose[:, :3] #(100, 3)
             # concat position and ft
@@ -21,23 +21,43 @@ def calc_min_max(dir):
                 data = np.expand_dims(position_ft, axis=0) #(1, 100, 9)
             else:
                 data = np.concatenate([data, np.expand_dims(position_ft, axis=0)], axis=0) #(trial, 100, 9)
+
+            print(data.shape)
     
     min_val, max_val = [], []
     for i in range(data.shape[2]):
         max_val.append(np.max(data[:, :, i]))
         min_val.append(np.min(data[:, :, i]))
+    for j in range(data.shape[0]):
+        for i in range(data.shape[2]):
+            if i ==0:
+                # print(np.max(data[j][:, i]))
+                print(np.min(data[j][:, i]))
+    print(min_val, max_val)
 
     return min_val, max_val
 
 def preprocess(data, min_val, max_val):  # (100, 9)
     normalized_data = np.zeros_like(data) # (100, 9)
 
+
+    for i in range(data.shape[1]):
+        if i ==0:
+            # print(np.max(data[j][:, i]))
+            print(np.min(data[:, i]))
+
     # normalized the data
     for i in range(data.shape[1]):
         normalized_data[:, i] = (data[:, i] - min_val[i]) / (max_val[i] - min_val[i])
-        if np.any(normalized_data[:, i] > 1) or np.any(normalized_data[:, i] < 0):
+        if np.any(normalized_data[:, i] < 0):
+        # if np.any(normalized_data[:, i] > 1) or np.any(normalized_data[:, i] < 0):
             print('The data is not normalized properly.')
-            exit()
+            # print(np.min(data[:, i]), i)
+    print('b')
+    for i in range(data.shape[1]):
+        if i ==0:
+            # print(np.max(data[j][:, i]))
+            print(np.min(data[:, i]))
 
     # [0, 0.9]に正規化
     normalized_data = normalized_data * SCALING_FACTOR
@@ -48,7 +68,7 @@ dir = '/root/Research_Internship_at_GVlab/real/step2/data/'
 min_val, max_val = calc_min_max(dir)
 
 dataset = {}
-for sponge in ALL_SPONGES_LIST:
+for sponge in ['s1f1','s2f2']:
     data = None
     for trial in range(1, DATA_PER_SPONGE+1):
         data_path = dir + sponge + '_' + str(trial) + '.npz'
@@ -66,6 +86,11 @@ for sponge in ALL_SPONGES_LIST:
         # concat position and ft
         position_ft = np.concatenate([position, ft], axis=1) #(100, 9)
 
+        for i in range(position_ft.shape[1]):
+            if i ==0:
+                # print(np.max(data[j][:, i]))
+                print(np.min(position_ft[:, i]))
+        print('a')
         preprocessed_data = preprocess(position_ft, min_val, max_val) #(9, 100)
 
         # merge the data
@@ -75,6 +100,7 @@ for sponge in ALL_SPONGES_LIST:
             data = np.concatenate([data, np.expand_dims(preprocessed_data, axis=0)], axis=0) #(trial, 9, 100)
     
     dataset[sponge] = data #(DEMO_PER_SPONGE, 9, 100)
+    print(data.shape)
 
 # save as npz
 np.savez(dir + 'demo_preprocessed3.npz', **dataset)

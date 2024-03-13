@@ -8,7 +8,7 @@ from vae import VAE
 from tcn import TCN
 
 class LfDProposed(nn.Module):
-    def __init__(self, vae_encoder_path=None, tcn_input_size=9, tcn_output_size=9, tcn_num_channels=[32, 64, 128, 256, 256, 516, 516], kernel_size=4, dropout=0.1, mlp_output_size=3):
+    def __init__(self, vae_encoder_path=None, tcn_input_size=9, tcn_output_size=9, tcn_num_channels=[25]*2, kernel_size=4, dropout=0.1, mlp_output_size=3):
         super(LfDProposed, self).__init__()
         self.vae_encoder = VAE()  # VAEの初期化
         if vae_encoder_path is not None:

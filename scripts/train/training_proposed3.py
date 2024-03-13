@@ -57,6 +57,7 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
         tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
         # ターゲットは次のタイムステップのzの値-直近のzの値
         targets[i] = target_data[idx, 2, end_index] - target_data[idx, 2, end_index-1]
+        targets[i] *= 10
         print(targets[i])
 
     return vae_inputs, tcn_inputs, targets

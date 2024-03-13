@@ -49,7 +49,7 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
     vae_inputs = vae_data[vae_indices]
 
     tcn_inputs = torch.zeros(batch_size, 6, fixed_T_length)
-    end_indices = torch.randint(fixed_T_length, tcn_data.shape[2], (batch_size,))
+    end_indices = torch.randint(fixed_T_length, tcn_data.shape[2]-1, (batch_size,))
     targets = torch.zeros(batch_size, 1)
     for i, idx in enumerate(tcn_indices):
         # データの選択範囲をランダムに設定（終点は最後から固定長を引いた位置）
@@ -57,7 +57,7 @@ def data_loader(vae_data, tcn_data, target_data, batch_size=32):
         start_index = end_index - fixed_T_length
         tcn_inputs[i, :, :] = tcn_data[idx, :, start_index:end_index]
         targets[i] = target_data[idx, end_index]
-        print(targets[i])
+        # print(targets[i])
 
     return vae_inputs, tcn_inputs, targets
 
@@ -81,8 +81,8 @@ z_diff_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_prep
 dir = '/root/Research_Internship_at_GVlab/real/model/proposed/'
 if not os.path.exists(dir):
     os.makedirs(dir)
-model_path = dir + 'proposed_model3.pth'
-decoder_path = dir + 'proposed_decoder3.pth'
+model_path = dir + 'proposed_model4.pth'
+decoder_path = dir + 'proposed_decoder4.pth'
 
 # load data
 vae_data, tcn_data, target_data = load_data(vae_data_path, ft_data_path, z_diff_data_path)
@@ -103,7 +103,7 @@ model.to(device)
 model.train()  # モデルを訓練モードに設定
 
 # 学習ループ
-num_epochs = 500  # エポック数
+num_epochs = 2000  # エポック数
 for epoch in range(num_epochs):
     vae_inputs, tcn_inputs, targets = data_loader(vae_data, tcn_data, target_data, batch_size)
     vae_inputs, tcn_inputs, targets = vae_inputs.to(device), tcn_inputs.to(device), targets.to(device)
@@ -112,6 +112,7 @@ for epoch in range(num_epochs):
     
     # フォワードパス
     outputs = model(vae_inputs, tcn_inputs)
+    print(outputs)
     
     # 損失の計算
     loss = criterion(outputs, targets)

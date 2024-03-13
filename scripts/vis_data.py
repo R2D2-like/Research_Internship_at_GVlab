@@ -161,24 +161,27 @@ else:
             p_or_r = input('0:predicted, 1:result: ')
             if method == '0':
                 if p_or_r == '0':
-                    data_path = data_dir + 'baseline/predicted/' + sponge + '.npz'
+                    # data_path = data_dir + 'baseline/predicted/' + sponge + '.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/real/rollout/data/baseline/predicted/baseline_hightable.npz'
                     save_dir = save_dir + 'baseline/predicted/'
                 else:
-                    data_path = data_dir + 'baseline/result/' + sponge + '.npz'
+                    # data_path = data_dir + 'baseline/result/' + sponge + '.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/real/rollout/data/baseline/result/baseline_hightable.npz'
                     save_dir = save_dir + 'baseline/result/'
             else:
                 if p_or_r == '0':
-                    data_path = data_dir + 'proposed/predicted/' + sponge + '.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/real/rollout/data/proposed/predicted/proposed_hightable_predicted.npz'
                     save_dir = save_dir + 'proposed/predicted/'
                 else:
-                    data_path = data_dir + 'proposed/result/' + sponge + '.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/real/rollout/data/proposed/result/proposed_hightable_result.npz'
                     save_dir = save_dir + 'proposed/result/'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            save_path = save_dir + sponge + '_trajectory.png'
+            save_path = save_dir + 'baseline_hightable.png'
         if p_or_r == '0':
             # eef_positionだけプロットする
-            eef_position_data =  np.load(data_path)['eef_position'][0]
+            eef_position_data =  np.load(data_path)['eef_position']
+            print(eef_position_data.shape)
             fig = plt.figure()
             ax1 = fig.add_subplot(111)
             ax1.set_title('End-effector Position')
@@ -192,7 +195,9 @@ else:
             plt.show()
         else:    
             pose_data = np.load(data_path)['pose']
+            print(pose_data.shape)
             ft_data = np.load(data_path)['ft']
+            print(ft_data.shape)
             # position と orientation と force と torque を並べてプロット
             fig = plt.figure()
             # position
@@ -204,16 +209,16 @@ else:
             ax1.set_xlabel('Time')
             ax1.set_ylabel('Position')
             ax1.legend()
-            # orientation
-            ax2 = fig.add_subplot(222)
-            ax2.set_title('Orientation')
-            ax2.plot(pose_data[:, 3], label='x')
-            ax2.plot(pose_data[:, 4], label='y')
-            ax2.plot(pose_data[:, 5], label='z')
-            ax2.plot(pose_data[:, 6], label='w')
-            ax2.set_xlabel('Time')
-            ax2.set_ylabel('Orientation')
-            ax2.legend()
+            # # orientation
+            # ax2 = fig.add_subplot(222)
+            # ax2.set_title('Orientation')
+            # ax2.plot(pose_data[:, 3], label='x')
+            # ax2.plot(pose_data[:, 4], label='y')
+            # ax2.plot(pose_data[:, 5], label='z')
+            # ax2.plot(pose_data[:, 6], label='w')
+            # ax2.set_xlabel('Time')
+            # ax2.set_ylabel('Orientation')
+            # ax2.legend()
             # force
             ax3 = fig.add_subplot(223)
             ax3.set_title('Force')

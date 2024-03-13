@@ -17,8 +17,8 @@ for sponge in TRAIN_SPONGES_LIST:
         pose = np.load(data_path)['pose'] #(100, 7)
         ft = np.load(data_path)['ft'] #(100, 6)
         # 1/20にダウンサンプリング
-        pose = pose[::20]
-        ft = ft[::20]
+        pose = pose[::20][20:]
+        ft = ft[::20][20:]
         # z displacement
         z_diff = np.diff(pose[:, 2]) #(99,)
 
