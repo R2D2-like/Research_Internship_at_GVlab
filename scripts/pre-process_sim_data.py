@@ -15,7 +15,16 @@ if not os.path.exists(dir):
     os.makedirs(dir)
 
 data_path = dir + 'sim_data_3dim.npy'
-data = np.load(data_path) #(1000, 400, 3)
+data = np.load(data_path) #(1000, 400, 6)
+
+# convert to adapt to real robot configuration
+data *= -1
+# idx 0 と 1 を入れ替え
+data = np.concatenate([data[:, :, 1:2], data[:, :, 0:1], data[:, :, 2:]], axis=2)
+# idx 3 と 4 を入れ替え
+data = np.concatenate([data[:, :, :3], data[:, :, 4:5], data[:, :, 3:4], data[:, :, 5:]], axis=2)
+# idx 3 と 4 の200ステップ〜400ステップの符号を反転
+data[:, 200:, 3:5] *= -1
 filtered_data = np.zeros_like(data)
 
 # 各列に対してローパスフィルタを適用
@@ -27,9 +36,9 @@ for i in range(data.shape[0]):
 max_val = []
 min_val = []
 
-for i in range(data.shape[2]):
-    max_val.append(np.max(data[:, :, i]))
-    min_val.append(np.min(data[:, :, i]))
+for i in range(filtered_data.shape[2]):
+    max_val.append(np.max(filtered_data[:, :, i]))
+    min_val.append(np.min(filtered_data[:, :, i]))
 
 normalized_data = np.zeros_like(filtered_data) #(1000, 400, 3)
 
@@ -41,6 +50,8 @@ for i in range(data.shape[0]):
 normalized_data *= SCALING_FACTOR
 
 # save the normalized data
+save_path = dir + 'sim_filtered.npy'
+np.save(save_path, filtered_data)
 save_path = dir + 'sim_preprocessed.npy'
 np.save(save_path, normalized_data)
 print('Data is saved at\n', save_path)
@@ -48,15 +59,3 @@ print('Copy the value below and paste it to config/values.py')
 print('EXPLORATORY_MIN =', min_val)
 print('EXPLORATORY_MAX =', max_val)
 
-# フィルタリング後のデータをプロット
-import matplotlib.pyplot as plt
-data = filtered_data[0, 0:3] 
-
-fig, ax = plt.subplots()
-ax.plot(data[:, 0], label='Fx')
-ax.plot(data[:, 1], label='Fy')
-ax.plot(data[:, 2], label='Fz')
-ax.set_xlabel('Time')
-ax.set_ylabel('Force')
-ax.legend()
-plt.show()

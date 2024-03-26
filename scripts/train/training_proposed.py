@@ -1,9 +1,11 @@
 import torch
 from torch import optim
 from torch.utils.data import DataLoader, TensorDataset
-from train.lfd_proposed import MotionDecoder
+from lfd_proposed import LfDProposed
 import numpy as np
-from config.values import *
+import sys
+sys.path.append('/root/Research_Internship_at_GVlab/scripts/config')
+from values import *
 import os
 
 def load_data(vae_data_path, tcn_data_path):
@@ -13,11 +15,11 @@ def load_data(vae_data_path, tcn_data_path):
     vae_data, tcn_data = None, None
     for sponge in TRAIN_SPONGES_LIST:
         if vae_data is None:
-            vae_data = np.expand_dims(exp_action_data[sponge], axis=0) #(1, 400, 6)
-            tcn_data = np.expand_dims(demo_data[sponge], axis=0) #(1, 9, 2000)
+            vae_data = exp_action_data[sponge] #(DATA_PER_SPONGE, 400, 6)
+            tcn_data = demo_data[sponge] #(DATA_PER_SPONGE, 9, 2000)
         else:
-            vae_data = np.concatenate([vae_data, np.expand_dims(exp_action_data[sponge], axis=0)], axis=0)
-            tcn_data = np.concatenate([tcn_data, np.expand_dims(demo_data[sponge], axis=0)], axis=0)
+            vae_data = np.concatenate([vae_data, exp_action_data[sponge]], axis=0)
+            tcn_data = np.concatenate([tcn_data, demo_data[sponge]], axis=0)
 
     return vae_data, tcn_data
 
@@ -32,7 +34,7 @@ def data_loader(vae_data, tcn_data, batch_size=32):
 
     return: vae_inputs, tcn_inputs, targets
     '''
-    fixed_T_length = 100  # TCNの入力データの固定長
+    fixed_T_length = 300  # TCNの入力データの固定長
     
     # TCNデータ用のインデックスを選択し、固定長を適用
     tcn_indices = torch.randint(0, tcn_data.shape[0], (batch_size,))
@@ -79,41 +81,42 @@ decoder_path = dir + 'proposed_decoder.pth'
 # load data
 vae_data, tcn_data = load_data(vae_data_path, tcn_data_path)
 
-vae_data = torch.tensor(vae_data) # (N, 400, 6)
-tcn_data = torch.tensor(tcn_data) # (N, 9, 2000)
+vae_data = torch.tensor(vae_data, dtype=torch.float32) # (N, 400, 6)
+tcn_data = torch.tensor(tcn_data, dtype=torch.float32) # (N, 9, 2000)
+print(tcn_data.size())
 
 # モデル、損失関数、オプティマイザの設定
-model = MotionDecoder(vae_encoder_path=vae_encoder_path)
+model = LfDProposed(vae_encoder_path=vae_encoder_path)
 criterion = torch.nn.MSELoss()  # 平均二乗誤差損失
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # デバイスの設定（GPUが利用可能な場合はGPUを使用）
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
+model.train()  # モデルを訓練モードに設定
 
 # 学習ループ
-num_epochs = 10000  # エポック数
+num_epochs = 1000  # エポック数
 for epoch in range(num_epochs):
-    model.train()  # モデルを訓練モードに設定
-    for vae_inputs, tcn_inputs, targets in data_loader(vae_data, tcn_data, batch_size):
-        vae_inputs, tcn_inputs, targets = vae_inputs.to(device), tcn_inputs.to(device), targets.to(device)
-        
-        optimizer.zero_grad()  # オプティマイザの勾配をゼロに設定
-        
-        # フォワードパス
-        outputs = model(vae_inputs, tcn_inputs)
-        
-        # 損失の計算
-        loss = criterion(outputs, targets)
-        
-        # バックプロパゲーション
-        loss.backward()
-        
-        # オプティマイザの更新
-        optimizer.step()
-        
-        if epoch % 1000 == 0:
-            print(f"Epoch {epoch}: Loss {loss.item()}")
+    vae_inputs, tcn_inputs, targets = data_loader(vae_data, tcn_data, batch_size)
+    vae_inputs, tcn_inputs, targets = vae_inputs.to(device), tcn_inputs.to(device), targets.to(device)
+    
+    optimizer.zero_grad()  # オプティマイザの勾配をゼロに設定
+    
+    # フォワードパス
+    outputs = model(vae_inputs, tcn_inputs)
+    
+    # 損失の計算
+    loss = criterion(outputs, targets)
+    
+    # バックプロパゲーション
+    loss.backward()
+    
+    # オプティマイザの更新
+    optimizer.step()
+    
+    if epoch % 100 == 0:
+        print(f"Epoch {epoch}: Loss {loss.item()}")
 
 # モデルの保存
 torch.save(model.state_dict(), model_path)

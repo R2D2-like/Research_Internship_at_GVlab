@@ -2,8 +2,10 @@ import torch
 from torch import optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from scripts.train.lfd_baseline import LfD
-from config.values import *
+from lfd_baseline import LfDBaseline
+import sys
+sys.path.append('/root/Research_Internship_at_GVlab/scripts/config')
+from values import *
 import os
 
 def load_data(exp_action_data_path, demo_data_path):
@@ -56,13 +58,13 @@ def main():
 
     # load data and create DataLoader
     inputs, targets = load_data(exp_action_data_path, demo_data_path)
-    inputs = torch.tensor(inputs)
-    targets = torch.tensor(targets)
+    inputs = torch.tensor(inputs, dtype=torch.float32)
+    targets = torch.tensor(targets, dtype=torch.float32)
     dataset = TensorDataset(inputs, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
     # create model
-    model = LfD(input_dim=6, output_dim=3, latent_dim=5, hidden_dim=32).to(device)
+    model = LfDBaseline(input_dim=6, output_dim=3, latent_dim=5, hidden_dim=32).to(device)
     
     # load encoder weights from pre-trained VAE
     model.load_state_dict(torch.load(encoder_weights_path), strict=False) # only load encoder weights

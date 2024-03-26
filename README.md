@@ -85,8 +85,7 @@ cd catkin_ws/src/universal_robot
 
 #### step1
 # exploratory actions
-rosrun ur_control pressing.py
-rosrun ur_control lateral.py
+rosrun ur_control exploratory_action.py
 
 # pre-process exploratory actions data
 cd /root/Research_Internship_at_GVlab
@@ -117,8 +116,7 @@ python3 scripts/train/training_proposed.py
 
 #### rollout
 # exploratory actions
-rosrun ur_control pressing.py
-rosrun ur_control lateral.py
+rosrun ur_control exploratory_action.py
 
 # pre-process exploratory actions data
 cd /root/Research_Internship_at_GVlab
@@ -129,10 +127,10 @@ cd /root/Research_Internship_at_GVlab
 python3 scripts/vis_data.py
 
 # execute baseline
-rosrun ur_control rollout_baseline_.py
+rosrun ur_control rollout_baseline.py
 
 # execute proposed
-rosrun ur_control rollout_proposed_.py
+rosrun ur_control rollout_proposed.py
 
 # visualize results
 cd /root/Research_Internship_at_GVlab
