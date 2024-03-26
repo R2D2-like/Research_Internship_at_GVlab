@@ -1,7 +1,7 @@
 # Research_Internship_at_GVlab
 This is a project of a research internship at GVlab.
 
-## set up
+## installation and set up
 ```
 git clone https://github.com/R2D2-like/Research_Internship_at_GVlab.git
 cd Research_Internship_at_GVlab
@@ -42,12 +42,20 @@ cd /root/Research_Internship_at_GVlab/
 python3 scripts/bc.py --dataset /root/Research_Internship_at_GVlab/demo_data/test_data/modi_demo.hdf5
 ``` -->
 
-## sim (sim data collection ~ pre-training)
+## pre-training in sim (sim data collection ~ pre-training)
 ```
 cd Research_Internship_at_GVlab
 
 # シミュレーターでデータ収集
 python3 scripts/exploratory_action_fixed.py
+
+# pre-process
+cd /root/Research_Internship_at_GVlab
+python3 scripts/pre-process_sim_data.py
+
+# visualize data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/vis_data.py
 
 # 学習
 python3 scripts/train/pre-training.py
@@ -64,17 +72,69 @@ cd catkin_ws/src/universal_robot
 (terminal 3) roslaunch ur5e_moveit_config moveit_rviz.launch
 ``` -->
 
-## real robot execution (sim ver)
+## real robot execution (UR5e)
 ```
+#### basic nodes (keep running while executing)
+# using gazebo
 (terminal 1) roslaunch ur_gripper_gazebo ur_gripper_hande_cubes.launch ur_robot:=ur5e grasp_plugin:=1
+# using real hardware
+(terminal 1) roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=163.220.51.112
+
 (terminal 2) rosrun ur_control ft_filter.py -t wrench
+(terminal 3) rosrun ur_control eef_pose_pub.py
 
-# step1
-rosrun ur_control step1.py
+#### step1
+# exploratory actions
+rosrun ur_control pressing.py
+rosrun ur_control lateral.py
 
-# step2
+# pre-process exploratory actions data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/pre-process_exploratory_actions_data.py
+
+# visualize data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/vis_data.py
+
+
+#### step2
 rosrun ur_control step2.py
 
-# rollout
-rosrun ur_control rollout.py
+# visualize data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/vis_data.py
+
+# pre-process demo data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/pre-process_demo_data.py
+
+#### train
+# baseline
+python3 scripts/train/training_baseline.py
+
+# proposal
+python3 scripts/train/training_proposed.py
+
+#### rollout
+# exploratory actions
+rosrun ur_control pressing.py
+rosrun ur_control lateral.py
+
+# pre-process exploratory actions data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/pre-process_exploratory_actions_data.py
+
+# visualize data
+cd /root/Research_Internship_at_GVlab
+python3 scripts/vis_data.py
+
+# execute baseline
+rosrun ur_control rollout_baseline_.py
+
+# execute proposed
+rosrun ur_control rollout_proposed_.py
+
+# visualize results
+cd /root/Research_Internship_at_GVlab
+python3 scripts/vis_data.py
 ```

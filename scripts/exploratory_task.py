@@ -20,7 +20,7 @@ DEFAULT_WIPE_CONFIG = {
     "distance_th_multiplier": 5.0,  # multiplier in the tanh function for the aforementioned reward
     # settings for table top
     "table_full_size": [0.5, 0.8, 0.05],  # Size of tabletop
-    "table_offset": [0.15, 0, 0.9],  # Offset of table (z dimension defines max height of table)
+    "table_offset": [0.15, 0, 1],  # Offset of table (z dimension defines max height of table)
     "table_friction": [0, 0, 0],#[0.03, 0.005, 0.0001],  # Friction parameters for the table
     "table_friction_std": 0,  # Standard deviation to sample different friction parameters for the table each episode
     "table_height": 0.0,  # Additional height of the table over the default location
@@ -166,7 +166,7 @@ class ExploratoryTask(SingleArmEnv):
         env_configuration="default",
         controller_configs=None,
         gripper_types="WipingGripper",
-        initialization_noise="default",
+        initialization_noise=None,
         use_camera_obs=True,
         use_object_obs=True,
         reward_scale=1.0,

@@ -13,7 +13,36 @@ DATA_SAVE_PATH = 'sim_data.npy'
 GRIPPER_PATH = '/root/external/robosuite/robosuite/models/assets/grippers/sponge_gripper.xml'   
 global FORCE_OFFSET 
 global TORQUE_OFFSET 
+SOLIMP_NAME = [
+    'wiping_surface1a',
+    'wiping_surface1b',
+    'wiping_surface1c',
+    'wiping_surface1d',
+    'wiping_surface1e',
+    'wiping_surface1f',
+    'wiping_surface1g',
+    'wiping_surface2a',
+    'wiping_surface2b',
+    'wiping_surface2c',
+    'wiping_surface2d',
+    'wiping_surface2e',
+    'wiping_surface2f',
+    'wiping_surface2g',
+]
 
+def select_number():
+    # 0.02から0.2の間の範囲と0.2から0.3の間の範囲の重みを決定
+    weights = [0.8, 0.2]  # 0.02から0.2までの範囲が全体の80%、0.2から0.3までが20%
+    
+    # どの範囲から数値を選択するか決定
+    choice = np.random.choice(['0.02-0.2', '0.2-0.3'], p=weights)
+    
+    # 決定された範囲から数値をランダムに選択
+    if choice == '0.02-0.2':
+        return round(np.random.uniform(0.02, 0.2), 4)
+    else:
+        return round(np.random.uniform(0.2, 0.3), 4)
+    
 def move_end_effector(env, direction, speed, duration):
     """
     Move the end-effector in a specified direction at a specified speed for a certain duration, while recording force and torque data at a higher frequency.
@@ -63,6 +92,8 @@ def move_end_effector(env, direction, speed, duration):
 
     # Retrieve recorded data from buffer
     force = [force_buffer.buf[i] for i in range(force_buffer._size)] #(buffer_length, 3)
+    if len(force) < 3:
+        return None, None
     global FORCE_OFFSET
     force -= FORCE_OFFSET
     # for i in range(len(force)):
@@ -94,47 +125,50 @@ def target_pos2action(target_pos, robot, obs, kp, kd):
     
     return action
 
-def move_end_effector_to_table(env, obs, target_position, threshold=0.01):
+def move_end_effector_to_table(env, obs, target_position, reset=False):
     """
     エンドエフェクタを特定の位置に移動させる関数。
     :param env: robosuite環境
     :param target_position: 目的の位置 [x, y, z]
     :param threshold: 目的の位置に到達したとみなす距離の閾値
     """
-    last_force, last_torque = None, None
+    force_log, torque_log = [], []
     for _ in range(1000):  # 最大1000ステップ
         # print('current_position', obs['robot0_eef_pos'])
         # print('force', env.robots[0].ee_force)
         action = target_pos2action(target_position, env.robots[0], obs, 2, 0)
         obs, reward, done, info = env.step(action)
         env.render()
+
+        if reset and obs['robot0_eef_pos'][2] < 1.02:
+            global FORCE_OFFSET
+            FORCE_OFFSET = np.mean(force_log[:10], axis=0)
+            global TORQUE_OFFSET
+            TORQUE_OFFSET = np.mean(torque_log[:10], axis=0)
         
         # 接触情報を取得
-        if obs['robot0_contact']:
+        if obs['robot0_eef_pos'][2] < 1.00 :
             print("テーブルに触れました。")
             print('現在の位置',obs['robot0_eef_pos'])
             print('force', env.robots[0].ee_force)
-            global FORCE_OFFSET
-            FORCE_OFFSET = last_force
-            global TORQUE_OFFSET
-            TORQUE_OFFSET = last_torque
-            # print('current joint position', env.robots[0]._joint_positions)
             return obs
         
-        last_force = obs['robot0_eef_force']
-        last_torque = obs['robot0_eef_torque']
+        force_log.append(obs['robot0_eef_force'])
+        torque_log.append(obs['robot0_eef_torque'])
 
 def is_eef_touching_table(obs):
     """
     エンドエフェクタがスポンジに触れているかを判定する関数。
     """
-    if obs['robot0_contact']:
+    if obs['robot0_contact'] or obs['robot0_eef_pos'][2] < 1.0:
         print("テーブルに触れています。")
         print('force', obs['robot0_eef_force'])
+        print('current_position', obs['robot0_eef_pos'])
         return True
     else:
         print("テーブルに触れていません。")
         print('force', obs['robot0_eef_force'])
+        print('current_position', obs['robot0_eef_pos'])
         return False
 
 def main():
@@ -154,19 +188,21 @@ def main():
         root = tree.getroot()
         # Sampling friction values
         lateral_friction = np.random.uniform(0, 3.5)
-        spin_friction = np.random.uniform(0, 4)
+        spin_friction = 0.5
         rolling_friction = 0.0001
         print('friction:', lateral_friction, spin_friction, rolling_friction) 
-        # solref
-        solref = np.random.uniform(-1000, -80)
-        print('solref: {}, 1'.format(solref))
+
+        # solimp
+        width = select_number()
 
         # Set friction of geom
         for geom in root.iter('geom'):
             if 'friction' in geom.attrib:
                 geom.set("friction", f"{lateral_friction} {spin_friction} {rolling_friction}")
             if 'solref' in geom.attrib and geom.attrib['type'] == 'box':
-                geom.set("solref", f"{solref} -1" )
+                geom.set("solref", f"{-0.5} -1" )
+            if 'solimp' in geom.attrib and geom.attrib['name'] in SOLIMP_NAME:
+                geom.set("solimp", "0.001 0.9 {}".format(width))
         # write to xml
         tree.write(GRIPPER_PATH)
 
@@ -197,7 +233,7 @@ def main():
         # env.robots[0].set_robot_joint_positions([-0.19138369, -0.74438986,  1.71753443, -2.52349095, -1.63481779, -1.70707145])
         # env.robots[0].set_robot_joint_positions([-0.23268999, -0.77181136,  1.95386971, -2.70821434, -1.59245526, -1.75497473])
     
-        obs = move_end_effector_to_table(env, obs, [0.1, 0.0, 0.87])
+        obs = move_end_effector_to_table(env, obs, [0.1, 0.0, 0.97], reset=True)
 
         print('current_position', obs['robot0_eef_pos'])
         # Move end-effector downwards (pressing) at 0.01 m/s for 2 seconds
@@ -206,6 +242,11 @@ def main():
         is_eef_touching_table(obs)
 
         print('data_recorder_p ({}, {})'.format(len(data_recorder_p), data_recorder_p[0].shape)) #(200, 6)
+
+        # detach from the table
+        _, obs = move_end_effector(env, direction=np.array([0, 0, 1]), speed=0.01, duration=2)
+        # move to the table
+        obs = move_end_effector_to_table(env, obs, [0.1, 0.0, 0.97], reset=False)
 
         # Move end-effector to the right (lateral motion) at 0.05 m/s for 1 second
         data_recorder_l_1, obs = move_end_effector(env, direction=np.array([0, 1, 0]), speed=0.05, duration=1)
@@ -250,9 +291,9 @@ def main():
     # Save the recorded data
     print('Saving the recorded data...')
     print('data_recorder_3dim', data_recorder_3dim.shape) #(1000, 400, 6)
-    np.save('sim_data_3dim.npy', data_recorder_3dim)
+    np.save('/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy', data_recorder_3dim)
     print('data_recorder_4dim', data_recorder_4dim.shape) #(1000, 2, 200, 6)
-    np.save('sim_data_4dim.npy', data_recorder_4dim)
+    np.save('/root/Research_Internship_at_GVlab/sim/data/sim_data_4dim.npy', data_recorder_4dim)
     print('Data recorded and saved.')
 
 if __name__ == "__main__":
