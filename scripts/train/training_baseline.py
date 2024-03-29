@@ -7,7 +7,7 @@ import sys
 sys.path.append('/root/Research_Internship_at_GVlab/scripts/config')
 from values import *
 import os
-
+import copy
 def load_data(exp_action_data_path, demo_data_path):
     exp_action_data = np.load(exp_action_data_path)
     demo_data = np.load(demo_data_path) 
@@ -42,12 +42,12 @@ def train(model, data_loader, optimizer, device,num_epochs=10000):
 
 def main():
     # load
-    exp_action_data_path = '/root/Research_Internship_at_GVlab/real/step1/data/exploratory_action_preprocessed.npz'
-    demo_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed.npz'
+    exp_action_data_path = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/exploratory_action_preprocessed.npz'
+    demo_data_path = '/root/Research_Internship_at_GVlab/real0328/step2/data/demo_preprocessed.npz'
     encoder_weights_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth'
 
     # save
-    dir = '/root/Research_Internship_at_GVlab/real/model/baseline/'
+    dir = '/root/Research_Internship_at_GVlab/real0328/model/baseline/'
     if not os.path.exists(dir):
         os.makedirs(dir)
     model_path = dir + 'baseline_model.pth'
@@ -58,8 +58,11 @@ def main():
 
     # load data and create DataLoader
     inputs, targets = load_data(exp_action_data_path, demo_data_path)
+    inputs = np.expand_dims(inputs[0], axis=0)
+    targets = np.expand_dims(targets[0][::20][20:], axis=0)
     inputs = torch.tensor(inputs, dtype=torch.float32)
     targets = torch.tensor(targets, dtype=torch.float32)
+    print(inputs.shape, targets.shape)
     dataset = TensorDataset(inputs, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
 

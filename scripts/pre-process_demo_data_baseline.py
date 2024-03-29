@@ -13,7 +13,9 @@ def calc_min_max(dir):
 
             # load data
             pose = np.load(data_path)['pose'] #(2000, 7)
+            pose = pose[::20][20:]
             ft = np.load(data_path)['ft'] #(2000, 6)
+            ft = ft[::20][20:]
             position = pose[:, :3] #(2000, 3)
             # concat position and ft
             position_ft = np.concatenate([position, ft], axis=1) #(2000, 9)
@@ -41,7 +43,7 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
 
     return normalized_data.T #(9, 2000)
 
-dir = '/root/Research_Internship_at_GVlab/real/step2/data/'
+dir = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/'
 min_val, max_val = calc_min_max(dir)
 
 dataset = {}
@@ -55,7 +57,10 @@ for sponge in ALL_SPONGES_LIST:
 
         # load data
         pose = np.load(data_path)['pose'] #(2000, 7)
+        pose = pose[::20][20:]
+        print(pose.shape)
         ft = np.load(data_path)['ft'] #(2000, 6)
+        ft = ft[::20][20:]
         position = pose[:, :3] #(2000, 3)
         # concat position and ft
         position_ft = np.concatenate([position, ft], axis=1) #(2000, 9)

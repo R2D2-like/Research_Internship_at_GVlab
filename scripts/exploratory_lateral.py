@@ -8,7 +8,7 @@ from robosuite.utils.buffers import RingBuffer
 
 
 FORCE_TORQUE_SAMPLING_RATE = 100  # Hz
-DATA_NUM = 1000
+DATA_NUM = 1
 DATA_SAVE_PATH = 'sim_data.npy'
 GRIPPER_PATH = '/root/external/robosuite/robosuite/models/assets/grippers/sponge_gripper.xml'   
 global FORCE_OFFSET 
@@ -30,35 +30,18 @@ SOLIMP_NAME = [
     'wiping_surface2g',
 ]
 
-def select_stiffness():
+def select_number():
     # 0.02から0.2の間の範囲と0.2から0.3の間の範囲の重みを決定
-    weights = [0.6, 0.2, 0.2]  # 0.02から0.2までの範囲が全体の80%、0.2から0.3までが20%
+    weights = [0.8, 0.2]  # 0.02から0.2までの範囲が全体の80%、0.2から0.3までが20%
     
     # どの範囲から数値を選択するか決定
-    choice = np.random.choice(['(-5)~(-10)', '(-10)~(-80)', '(-80)~(-100)'], p=weights)
+    choice = np.random.choice(['0.02-0.2', '0.2-0.3'], p=weights)
     
     # 決定された範囲から数値をランダムに選択
-    if choice == '(-5)~(-10)':
-        return np.random.randint(-10, -5)
-    elif choice == '(-10)~(-80)':
-        return np.random.randint(-80, -10)
-    elif choice == '(-80)~(-100)':
-        return np.random.randint(-100, -80)
-    
-def select_solimp():
-    # 0.02から0.2の間の範囲と0.2から0.3の間の範囲の重みを決定
-    weights = [0.5, 0.1, 0.4]  # 0.02から0.2までの範囲が全体の80%、0.2から0.3までが20%
-    
-    # どの範囲から数値を選択するか決定
-    choice = np.random.choice(['0.01~0.02', '0.02~0.18', '0.19~0.2'], p=weights)
-    
-    # 決定された範囲から数値をランダムに選択
-    if choice == '0.01~0.02':
-        return round(np.random.uniform(0.01, 0.02), 4)
-    elif choice == '0.02~0.18':
-        return round(np.random.uniform(0.02, 0.19), 4)
-    elif choice == '0.19~0.2':
-        return round(np.random.uniform(0.19, 0.2), 4)
+    if choice == '0.02-0.2':
+        return round(np.random.uniform(0.02, 0.2), 4)
+    else:
+        return round(np.random.uniform(0.2, 0.3), 4)
     
 def move_end_effector(env, direction, speed, duration):
     """
@@ -203,30 +186,23 @@ def main():
         # load gripper xml file 
         tree = ET.parse(GRIPPER_PATH)
         root = tree.getroot()
-        # friction values
-        lateral_friction = 10
-        spin_friction = 0
+        # Sampling friction values
+        lateral_friction = np.random.uniform(0, 3.5)
+        spin_friction = 0.5
         rolling_friction = 0.0001
         print('friction:', lateral_friction, spin_friction, rolling_friction) 
 
-        # solref
-        stiffness = select_stiffness()
-        print('stiffness:', stiffness)
-
         # solimp
-        solimp = select_solimp()
-        print('solimp', solimp)
-
+        width = select_number()
 
         # Set friction of geom
         for geom in root.iter('geom'):
             if 'friction' in geom.attrib:
-                geom.set("friction", f"{lateral_friction} {spin_friction} {rolling_friction}")
+                geom.set("friction", f"{10} {spin_friction} {rolling_friction}")
             if 'solref' in geom.attrib and geom.attrib['type'] == 'box':
-                geom.set("solref", f"{stiffness} -1" )
+                geom.set("solref", f"{-0} -1" )
             if 'solimp' in geom.attrib and geom.attrib['name'] in SOLIMP_NAME:
-                geom.set("solimp", "{} 0.2 0.3".format(solimp)) 
-
+                geom.set("solimp", "0.001 0.1 {}".format(0.3))
         # write to xml
         tree.write(GRIPPER_PATH)
 
@@ -246,7 +222,7 @@ def main():
             horizon=1000,  # 200 timesteps per episode
             ignore_done=True,  # Never terminate the environment
         )
-        print('Environment created (pressing)')
+        print('Environment created')
         # print('control_timestep is ', env.control_timestep)
 
         # シミュレーションをリセットし、スポンジの位置にエンドエフェクタを移動する
@@ -256,8 +232,10 @@ def main():
 
         # env.robots[0].set_robot_joint_positions([-0.19138369, -0.74438986,  1.71753443, -2.52349095, -1.63481779, -1.70707145])
         env.robots[0].set_robot_joint_positions([1.57, -1.57,  1.57, -1.57, -1.57, 0])
+        # env.robots[0].set_robot_joint_positions([-0.23268999, -0.77181136,  1.95386971, -2.70821434, -1.59245526, -1.75497473])
+
     
-        obs = move_end_effector_to_table(env, obs, [0.18, 0.0, 0.97], reset=True)
+        obs = move_end_effector_to_table(env, obs, [0.1, 0.0, 0.97], reset=True)
 
         print('current_position', obs['robot0_eef_pos'])
         # Move end-effector downwards (pressing) at 0.01 m/s for 2 seconds
@@ -267,56 +245,14 @@ def main():
 
         print('data_recorder_p ({}, {})'.format(len(data_recorder_p), data_recorder_p[0].shape)) #(200, 6)
 
-
-        # lateral
-        
-        # Sampling friction values
-        lateral_friction = np.random.uniform(0, 10)
-        spin_friction = 0.5
-        rolling_friction = 0.0001
-        print('friction:', lateral_friction, spin_friction, rolling_friction) 
-
-        # Set friction of geom
-        for geom in root.iter('geom'):
-            if 'friction' in geom.attrib:
-                geom.set("friction", f"{lateral_friction} {spin_friction} {rolling_friction}")
-            if 'solref' in geom.attrib and geom.attrib['type'] == 'box':
-                geom.set("solref", f"{-0} -1" )
-            if 'solimp' in geom.attrib and geom.attrib['name'] in SOLIMP_NAME:
-                geom.set("solimp", "0.001 0.1 0.3")
-        # write to xml
-        tree.write(GRIPPER_PATH)
-
-        env = suite.make(
-            env_name="ExploratoryTask",#"ExploratoryTaskFixed",
-            robots="UR5e",
-            controller_configs=controller_config,
-            gripper_types="SpongeGripper",  # Specify the gripper
-            has_renderer=True,  # No on-screen rendering
-            has_offscreen_renderer=False,  # Enable off-screen rendering
-            use_camera_obs=False,  # Do not use camera observations
-            use_object_obs=True,  # Use object observations
-            reward_shaping=True,  # Enable reward shaping
-            control_freq=20,  # 100Hz control for the robot
-            # render_camera='sideview',  # Specify camera type
-            horizon=1000,  # 200 timesteps per episode
-            ignore_done=True,  # Never terminate the environment
-        )
-        print('Environment created (lateral)')
-        # print('control_timestep is ', env.control_timestep)
-
-        # シミュレーションをリセットし、スポンジの位置にエンドエフェクタを移動する
-        obs = env.reset()
-        # table_pos = env.model.mujoco_arena.table_top_abs
-        # print('table_pos', table_pos) # 0.9
-
-        env.robots[0].set_robot_joint_positions([1.57, -1.57,  1.57, -1.57, -1.57, 0])
+        # detach from the table
+        _, obs = move_end_effector(env, direction=np.array([0, 0, 1]), speed=0.01, duration=2)
         # move to the table
         obs = move_end_effector_to_table(env, obs, [0.1, 0.0, 0.97], reset=True)
-        # global FORCE_OFFSET
-        # FORCE_OFFSET = obs['robot0_eef_force']
-        # global TORQUE_OFFSET
-        # TORQUE_OFFSET = obs['robot0_eef_torque']
+        global FORCE_OFFSET
+        FORCE_OFFSET = obs['robot0_eef_force']
+        global TORQUE_OFFSET
+        TORQUE_OFFSET = obs['robot0_eef_torque']
 
         # Move end-effector to the right (lateral motion) at 0.05 m/s for 1 second
         # _, obs = move_end_effector(env, direction=np.array([0, 0, 1]), speed=0.01, duration=0.03)
@@ -344,13 +280,13 @@ def main():
             data_recorder_3dim = np.concatenate([data_recorder_3dim, tmp], axis=0)
         print('data_recorder_3dim', data_recorder_3dim.shape) #(idx+1, 400, 6)
 
-        # tmp = np.array([data_recorder_p, data_recorder_l]) #(2, 200, 6) 
-        # tmp = np.expand_dims(tmp, axis=0) #(1, 2, 200, 6)
-        # if data_recorder_4dim is None:
-        #     data_recorder_4dim = tmp
-        # else:
-        #     # data_recorder_4dim = np.concatenate([data_recorder_4dim, tmp], axis=0)
-        # print('data_recorder_4dim', data_recorder_4dim.shape) #(idx+1, 2, 200, 6)
+        tmp = np.array([data_recorder_p, data_recorder_l]) #(2, 200, 6) 
+        tmp = np.expand_dims(tmp, axis=0) #(1, 2, 200, 6)
+        if data_recorder_4dim is None:
+            data_recorder_4dim = tmp
+        else:
+            data_recorder_4dim = np.concatenate([data_recorder_4dim, tmp], axis=0)
+        print('data_recorder_4dim', data_recorder_4dim.shape) #(idx+1, 2, 200, 6)
 
         # Close the environment
         env.close()
@@ -364,6 +300,8 @@ def main():
     print('Saving the recorded data...')
     print('data_recorder_3dim', data_recorder_3dim.shape) #(1000, 400, 6)
     np.save('/root/Research_Internship_at_GVlab/sim/data/sim_data.npy', data_recorder_3dim)
+    print('data_recorder_4dim', data_recorder_4dim.shape) #(1000, 2, 200, 6)
+    np.save('/root/Research_Internship_at_GVlab/sim/data/sim_data_4dim.npy', data_recorder_4dim)
     print('Data recorded and saved.')
 
 if __name__ == "__main__":

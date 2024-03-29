@@ -5,32 +5,41 @@ import os
 
 # データのサンプリング周波数とカットオフ周波数を設定
 fs = 3000.0  # サンプリング周波数 (Hz)
-fc = 110.0   # カットオフ周波数 (Hz)
+fc = 50.0   # カットオフ周波数 (Hz)
 
 # バターワースローパスフィルタの設計
 sos = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
+sos_t = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
 
 dir = '/root/Research_Internship_at_GVlab/sim/data/'
 if not os.path.exists(dir):
     os.makedirs(dir)
 
-data_path = dir + 'sim_data_3dim.npy'
+data_path = dir + 'sim_data.npy'
 data = np.load(data_path) #(1000, 400, 6)
 
 # convert to adapt to real robot configuration
 data *= -1
-# idx 0 と 1 を入れ替え
-data = np.concatenate([data[:, :, 1:2], data[:, :, 0:1], data[:, :, 2:]], axis=2)
-# idx 3 と 4 を入れ替え
-data = np.concatenate([data[:, :, :3], data[:, :, 4:5], data[:, :, 3:4], data[:, :, 5:]], axis=2)
-# idx 3 と 4 の200ステップ〜400ステップの符号を反転
-data[:, 200:, 3:5] *= -1
+# # idx 0 と 1 を入れ替え
+# data = np.concatenate([data[:, :, 1:2], data[:, :, 0:1], data[:, :, 2:]], axis=2)
+# # idx 3 と 4 を入れ替え
+# data = np.concatenate([data[:, :, :3], data[:, :, 4:5], data[:, :, 3:4], data[:, :, 5:]], axis=2)
+# # idx 3 と 4 の200ステップ〜400ステップの符号を反転
+# data[:, 200:, 3:5] *= -1
+# data[:, :, 3:5] *= -1
 filtered_data = np.zeros_like(data)
 
 # 各列に対してローパスフィルタを適用
 for i in range(data.shape[0]):
     for j in range(data.shape[2]):
-        filtered_data[i][:, j] = sosfilt(sos, data[i][:, j])
+        if j < 3:
+            filtered_data[i][:200, j] = sosfilt(sos, data[i][:200, j])
+            filtered_data[i][200:, j] = sosfilt(sos, data[i][200:, j])
+        else:
+            filtered_data[i][:200, j] = sosfilt(sos_t, data[i][:200, j])
+            filtered_data[i][200:, j] = sosfilt(sos_t, data[i][200:, j])
+            
+
 
 # normalized the filtered data
 max_val = []

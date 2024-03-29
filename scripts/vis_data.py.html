@@ -1,0 +1,254 @@
+<html><head>
+<title>scripts/vis_data.py</title>
+<meta name="Generator" content="htmlizer/[Twisted, version 18.9.0]" />
+<link rel="alternate" href="scripts/vis_data.py" type="text/x-python" />
+
+</head>
+<body>
+<pre><span class="py-src-variable">import</span> <span class="py-src-variable">matplotlib</span>.<span class="py-src-variable">pyplot</span> <span class="py-src-variable">as</span> <span class="py-src-variable">plt</span>
+<span class="py-src-variable">import</span> <span class="py-src-variable">numpy</span> <span class="py-src-variable">as</span> <span class="py-src-variable">np</span>
+<span class="py-src-variable">import</span> <span class="py-src-variable">pandas</span> <span class="py-src-variable">as</span> <span class="py-src-variable">pd</span>
+<span class="py-src-variable">import</span> <span class="py-src-variable">os</span>
+
+<span class="py-src-comment"># Load the npz data</span>
+<span class="py-src-variable">env</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;0:sim, 1:real: &#x27;</span>)
+<span class="py-src-variable">if</span> <span class="py-src-variable">env</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+    <span class="py-src-variable">idx</span> = <span class="py-src-variable">int</span>(<span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;idx: &#x27;</span>))
+    <span class="py-src-variable">raw_data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy&#x27;</span> <span class="py-src-comment">#(100, 400, 6)</span>
+    <span class="py-src-variable">filtered_data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/sim/data/sim_filtered.npy&#x27;</span> <span class="py-src-comment">#(100, 400, 6)</span>
+    <span class="py-src-variable">preprocessed_data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/sim/data/sim_preprocessed.npy&#x27;</span> <span class="py-src-comment">#(100, 400, 6)</span>
+    <span class="py-src-variable">raw_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">raw_data_path</span>)[<span class="py-src-variable">idx</span>]
+    <span class="py-src-variable">filtered_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">filtered_data_path</span>)[<span class="py-src-variable">idx</span>]
+    <span class="py-src-variable">preprocessed_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">preprocessed_data_path</span>)[<span class="py-src-variable">idx</span>]
+
+    <span class="py-src-variable">save_dir</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/fig/sim/&#x27;</span>
+    <span class="py-src-variable">if</span> <span class="py-src-variable">not</span> <span class="py-src-variable">os</span>.<span class="py-src-variable">path</span>.<span class="py-src-variable">exists</span>(<span class="py-src-variable">save_dir</span>):
+        <span class="py-src-variable">os</span>.<span class="py-src-variable">makedirs</span>(<span class="py-src-variable">save_dir</span>)
+
+    <span class="py-src-comment"># rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)とpreprocessedのforce(ax5), preprocessedのtorque(ax6)を並べてプロット</span>
+    <span class="py-src-variable">fig</span> = <span class="py-src-variable">plt</span>.<span class="py-src-variable">figure</span>()
+    <span class="py-src-comment"># rawのforce</span>
+    <span class="py-src-variable">ax1</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">231</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Raw Force&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+    <span class="py-src-variable">ax1</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-comment"># rawのtorque</span>
+    <span class="py-src-variable">ax2</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">234</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Raw Torque&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+    <span class="py-src-variable">ax2</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-comment"># filteredのforce</span>
+    <span class="py-src-variable">ax3</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">232</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Filtered Force&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+    <span class="py-src-variable">ax3</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-comment"># filteredのtorque</span>
+    <span class="py-src-variable">ax4</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">235</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Filtered Torque&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+    <span class="py-src-variable">ax4</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-comment"># preprocessedのforce</span>
+    <span class="py-src-variable">ax5</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">233</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Preprocessed Force&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+    <span class="py-src-variable">ax5</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-comment"># preprocessedのtorque</span>
+    <span class="py-src-variable">ax6</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">236</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Preprocessed Torque&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">preprocessed_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+    <span class="py-src-variable">ax6</span>.<span class="py-src-variable">legend</span>()
+    <span class="py-src-variable">save_path</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;sim_&#x27;</span> + <span class="py-src-variable">str</span>(<span class="py-src-variable">idx</span>) + <span class="py-src-string">&#x27;_ft.png&#x27;</span>
+    <span class="py-src-variable">fig</span>.<span class="py-src-variable">savefig</span>(<span class="py-src-variable">save_path</span>)
+    <span class="py-src-variable">plt</span>.<span class="py-src-variable">show</span>()
+    
+<span class="py-src-variable">else</span>:
+    <span class="py-src-variable">mode</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;0:step1, 1:step2, 2:rollout: &#x27;</span>)
+    <span class="py-src-variable">if</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+        <span class="py-src-variable">mode</span> = <span class="py-src-string">&#x27;step1&#x27;</span>
+    <span class="py-src-variable">elif</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;1&#x27;</span>:
+        <span class="py-src-variable">mode</span> = <span class="py-src-string">&#x27;step2&#x27;</span>
+    <span class="py-src-variable">else</span>:
+        <span class="py-src-variable">mode</span> = <span class="py-src-string">&#x27;rollout&#x27;</span>
+    <span class="py-src-variable">data_dir</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/data0313/real/&#x27;</span> + <span class="py-src-variable">mode</span> + <span class="py-src-string">&#x27;/data/&#x27;</span>
+    <span class="py-src-variable">data_type</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;0:exploratory, 1:trajectory: &#x27;</span>)
+    <span class="py-src-variable">stiffness</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;stiffness level (1, 2, 3, 4): &#x27;</span>)
+    <span class="py-src-variable">friction</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;friction level (1, 2, 3): &#x27;</span>)
+    <span class="py-src-variable">sponge</span> = <span class="py-src-string">&#x27;s&#x27;</span> + <span class="py-src-variable">stiffness</span> + <span class="py-src-string">&#x27;f&#x27;</span> + <span class="py-src-variable">friction</span>
+    <span class="py-src-variable">save_dir</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/fig/&#x27;</span> + <span class="py-src-variable">mode</span> + <span class="py-src-string">&#x27;/&#x27;</span> 
+    <span class="py-src-variable">if</span> <span class="py-src-variable">not</span> <span class="py-src-variable">os</span>.<span class="py-src-variable">path</span>.<span class="py-src-variable">exists</span>(<span class="py-src-variable">save_dir</span>):
+        <span class="py-src-variable">os</span>.<span class="py-src-variable">makedirs</span>(<span class="py-src-variable">save_dir</span>)
+
+    <span class="py-src-variable">if</span> <span class="py-src-variable">data_type</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+        <span class="py-src-comment"># Load the npz data</span>
+        <span class="py-src-variable">if</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;step1&#x27;</span>:
+            <span class="py-src-variable">trial</span> = <span class="py-src-variable">int</span>(<span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;trial (1, 2, 3, 5, 6, 7, 8): &#x27;</span>)) - <span class="py-src-number">1</span>
+        <span class="py-src-variable">elif</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;rollout&#x27;</span>:
+            <span class="py-src-variable">trial</span> = <span class="py-src-number">0</span>
+            <span class="py-src-variable">data_dir</span> += <span class="py-src-string">&#x27;exploratory/&#x27;</span>
+        <span class="py-src-variable">raw_data_path</span> = <span class="py-src-variable">data_dir</span> + <span class="py-src-string">&#x27;exploratory_action_raw.npz&#x27;</span>
+        <span class="py-src-variable">filtered_data_path</span> = <span class="py-src-variable">data_dir</span> + <span class="py-src-string">&#x27;exploratory_action_filtered.npz&#x27;</span>
+        <span class="py-src-variable">raw_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">raw_data_path</span>)[<span class="py-src-variable">sponge</span>][<span class="py-src-variable">trial</span>] <span class="py-src-comment">#(400, 6)</span>
+        <span class="py-src-variable">filtered_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">filtered_data_path</span>)[<span class="py-src-variable">sponge</span>][<span class="py-src-variable">trial</span>] <span class="py-src-comment">#(400, 6)</span>
+
+        <span class="py-src-comment"># rawのforce(ax1), rawのtorque(ax2)とfilteredのforce(ax3), filteredのtorque(ax4)を並べてプロット</span>
+        <span class="py-src-variable">fig</span> = <span class="py-src-variable">plt</span>.<span class="py-src-variable">figure</span>()
+        <span class="py-src-comment"># rawのforce</span>
+        <span class="py-src-variable">ax1</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">221</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Raw Force&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+        <span class="py-src-variable">ax1</span>.<span class="py-src-variable">legend</span>()
+        <span class="py-src-comment"># rawのtorque</span>
+        <span class="py-src-variable">ax2</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">223</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Raw Torque&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">raw_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+        <span class="py-src-variable">ax2</span>.<span class="py-src-variable">legend</span>()
+        <span class="py-src-comment"># filteredのforce</span>
+        <span class="py-src-variable">ax3</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">222</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Filtered Force&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+        <span class="py-src-variable">ax3</span>.<span class="py-src-variable">legend</span>()
+        <span class="py-src-comment"># filteredのtorque</span>
+        <span class="py-src-variable">ax4</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">224</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Filtered Torque&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">filtered_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+        <span class="py-src-variable">ax4</span>.<span class="py-src-variable">legend</span>()
+        <span class="py-src-variable">save_path</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-variable">sponge</span> + <span class="py-src-string">&#x27;_ft.png&#x27;</span>
+        <span class="py-src-variable">fig</span>.<span class="py-src-variable">savefig</span>(<span class="py-src-variable">save_path</span>)
+        <span class="py-src-variable">plt</span>.<span class="py-src-variable">show</span>()
+
+    <span class="py-src-variable">elif</span> <span class="py-src-variable">data_type</span> == <span class="py-src-string">&#x27;1&#x27;</span>:
+        <span class="py-src-variable">p_or_r</span> = <span class="py-src-variable">None</span>
+        <span class="py-src-comment"># Load the npy data</span>
+        <span class="py-src-variable">if</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;step2&#x27;</span>:
+            <span class="py-src-variable">trial</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;trial (1, 2, 3, 5, 6, 7, 8): &#x27;</span>)
+            <span class="py-src-variable">data_path</span> = <span class="py-src-variable">data_dir</span> + <span class="py-src-variable">sponge</span> + <span class="py-src-string">&#x27;_&#x27;</span> + <span class="py-src-variable">trial</span> + <span class="py-src-string">&#x27;.npz&#x27;</span>
+            <span class="py-src-variable">save_path</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-variable">sponge</span> + <span class="py-src-string">&#x27;_trajectory_&#x27;</span> + <span class="py-src-variable">trial</span> + <span class="py-src-string">&#x27;.png&#x27;</span>
+        <span class="py-src-variable">elif</span> <span class="py-src-variable">mode</span> == <span class="py-src-string">&#x27;rollout&#x27;</span>:
+            <span class="py-src-variable">method</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;0:baseline, 1:proposed: &#x27;</span>)
+            <span class="py-src-variable">p_or_r</span> = <span class="py-src-variable">input</span>(<span class="py-src-string">&#x27;0:predicted, 1:result: &#x27;</span>)
+            <span class="py-src-variable">if</span> <span class="py-src-variable">method</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+                <span class="py-src-variable">if</span> <span class="py-src-variable">p_or_r</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+                    <span class="py-src-comment"># data_path = data_dir + &#x27;baseline/predicted/&#x27; + sponge + &#x27;.npz&#x27;</span>
+                    <span class="py-src-variable">data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/real/rollout/data/baseline/predicted/baseline_hightable.npz&#x27;</span>
+                    <span class="py-src-variable">save_dir</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;baseline/predicted/&#x27;</span>
+                <span class="py-src-variable">else</span>:
+                    <span class="py-src-comment"># data_path = data_dir + &#x27;baseline/result/&#x27; + sponge + &#x27;.npz&#x27;</span>
+                    <span class="py-src-variable">data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/real/rollout/data/baseline/result/baseline_hightable.npz&#x27;</span>
+                    <span class="py-src-variable">save_dir</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;baseline/result/&#x27;</span>
+            <span class="py-src-variable">else</span>:
+                <span class="py-src-variable">if</span> <span class="py-src-variable">p_or_r</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+                    <span class="py-src-variable">data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/real/rollout/data/proposed/predicted/proposed_hightable_predicted.npz&#x27;</span>
+                    <span class="py-src-variable">save_dir</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;proposed/predicted/&#x27;</span>
+                <span class="py-src-variable">else</span>:
+                    <span class="py-src-variable">data_path</span> = <span class="py-src-string">&#x27;/root/Research_Internship_at_GVlab/real/rollout/data/proposed/result/proposed_hightable_result.npz&#x27;</span>
+                    <span class="py-src-variable">save_dir</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;proposed/result/&#x27;</span>
+            <span class="py-src-variable">if</span> <span class="py-src-variable">not</span> <span class="py-src-variable">os</span>.<span class="py-src-variable">path</span>.<span class="py-src-variable">exists</span>(<span class="py-src-variable">save_dir</span>):
+                <span class="py-src-variable">os</span>.<span class="py-src-variable">makedirs</span>(<span class="py-src-variable">save_dir</span>)
+            <span class="py-src-variable">save_path</span> = <span class="py-src-variable">save_dir</span> + <span class="py-src-string">&#x27;baseline_hightable.png&#x27;</span>
+        <span class="py-src-variable">if</span> <span class="py-src-variable">p_or_r</span> == <span class="py-src-string">&#x27;0&#x27;</span>:
+            <span class="py-src-comment"># eef_positionだけプロットする</span>
+            <span class="py-src-variable">eef_position_data</span> =  <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">data_path</span>)[<span class="py-src-string">&#x27;eef_position&#x27;</span>]
+            <span class="py-src-variable">print</span>(<span class="py-src-variable">eef_position_data</span>.<span class="py-src-variable">shape</span>)
+            <span class="py-src-variable">fig</span> = <span class="py-src-variable">plt</span>.<span class="py-src-variable">figure</span>()
+            <span class="py-src-variable">ax1</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">111</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;End-effector Position&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">eef_position_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;x&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">eef_position_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;y&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">eef_position_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;z&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Position&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">legend</span>()
+            <span class="py-src-variable">fig</span>.<span class="py-src-variable">savefig</span>(<span class="py-src-variable">save_path</span>)
+            <span class="py-src-variable">plt</span>.<span class="py-src-variable">show</span>()
+        <span class="py-src-variable">else</span>:    
+            <span class="py-src-variable">pose_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">data_path</span>)[<span class="py-src-string">&#x27;pose&#x27;</span>]
+            <span class="py-src-variable">print</span>(<span class="py-src-variable">pose_data</span>.<span class="py-src-variable">shape</span>)
+            <span class="py-src-variable">ft_data</span> = <span class="py-src-variable">np</span>.<span class="py-src-variable">load</span>(<span class="py-src-variable">data_path</span>)[<span class="py-src-string">&#x27;ft&#x27;</span>]
+            <span class="py-src-variable">print</span>(<span class="py-src-variable">ft_data</span>.<span class="py-src-variable">shape</span>)
+            <span class="py-src-comment"># position と orientation と force と torque を並べてプロット</span>
+            <span class="py-src-variable">fig</span> = <span class="py-src-variable">plt</span>.<span class="py-src-variable">figure</span>()
+            <span class="py-src-comment"># position</span>
+            <span class="py-src-variable">ax1</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">221</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Position&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">pose_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;x&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">pose_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;y&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">pose_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;z&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Position&#x27;</span>)
+            <span class="py-src-variable">ax1</span>.<span class="py-src-variable">legend</span>()
+            <span class="py-src-comment"># # orientation</span>
+            <span class="py-src-comment"># ax2 = fig.add_subplot(222)</span>
+            <span class="py-src-comment"># ax2.set_title(&#x27;Orientation&#x27;)</span>
+            <span class="py-src-comment"># ax2.plot(pose_data[:, 3], label=&#x27;x&#x27;)</span>
+            <span class="py-src-comment"># ax2.plot(pose_data[:, 4], label=&#x27;y&#x27;)</span>
+            <span class="py-src-comment"># ax2.plot(pose_data[:, 5], label=&#x27;z&#x27;)</span>
+            <span class="py-src-comment"># ax2.plot(pose_data[:, 6], label=&#x27;w&#x27;)</span>
+            <span class="py-src-comment"># ax2.set_xlabel(&#x27;Time&#x27;)</span>
+            <span class="py-src-comment"># ax2.set_ylabel(&#x27;Orientation&#x27;)</span>
+            <span class="py-src-comment"># ax2.legend()</span>
+            <span class="py-src-comment"># force</span>
+            <span class="py-src-variable">ax3</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">223</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">0</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fx&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">1</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fy&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">2</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Fz&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Force&#x27;</span>)
+            <span class="py-src-variable">ax3</span>.<span class="py-src-variable">legend</span>()
+            <span class="py-src-comment"># torque</span>
+            <span class="py-src-variable">ax4</span> = <span class="py-src-variable">fig</span>.<span class="py-src-variable">add_subplot</span>(<span class="py-src-number">224</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_title</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">3</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tx&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">4</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Ty&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">plot</span>(<span class="py-src-variable">ft_data</span>[:, <span class="py-src-number">5</span>], <span class="py-src-variable">label</span>=<span class="py-src-string">&#x27;Tz&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_xlabel</span>(<span class="py-src-string">&#x27;Time&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">set_ylabel</span>(<span class="py-src-string">&#x27;Torque&#x27;</span>)
+            <span class="py-src-variable">ax4</span>.<span class="py-src-variable">legend</span>()
+            <span class="py-src-variable">fig</span>.<span class="py-src-variable">savefig</span>(<span class="py-src-variable">save_path</span>)
+            <span class="py-src-variable">plt</span>.<span class="py-src-variable">show</span>()    
+        
+
+
+
+</pre>
+</body>

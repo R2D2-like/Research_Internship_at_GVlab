@@ -2,8 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 z_diff_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_z_diff.npz'
 ft_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_ft.npz'
-z_diff = np.load(z_diff_data_path)['s1f1'][9] #(99,)
-ft = np.load(ft_data_path)['s1f1'][9] #(6, 100)
+sponge = input('sponge: ')
+trial = int(input('trial: '))
+z_diff = np.load(z_diff_data_path)[sponge][trial]#(99,)
+print(z_diff.shape)
+ft = np.load(ft_data_path)[sponge][trial] #(6, 100)
 print(ft.shape)
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -30,6 +33,6 @@ ax3.set_xlabel('Time')
 ax3.set_ylabel('Torque')
 ax3.legend()
 
-save_path = '/root/Research_Internship_at_GVlab/fig/demo_preprocessed_z_diff_ft_s2f2.png'
+save_path = '/root/Research_Internship_at_GVlab/fig/demo_preprocessed_z_diff_ft_{}.png'.format(sponge)
 fig.savefig(save_path)
 plt.show()

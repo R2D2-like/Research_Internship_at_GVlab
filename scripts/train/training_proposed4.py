@@ -73,12 +73,12 @@ dummy_targets = torch.randn(batch_size, 3)
 
 # load path
 vae_encoder_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth' # VAEのエンコーダーの重みへのパス
-vae_data_path = '/root/Research_Internship_at_GVlab/real/step1/data/exploratory_action_preprocessed.npz'
-ft_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_ft.npz'
-z_diff_data_path = '/root/Research_Internship_at_GVlab/real/step2/data/demo_preprocessed_z_diff.npz'
+vae_data_path = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/exploratory_action_preprocessed.npz'
+ft_data_path = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/demo_preprocessed_ft.npz'
+z_diff_data_path = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/demo_preprocessed_z_diff.npz'
 
 # save path
-dir = '/root/Research_Internship_at_GVlab/real/model/proposed/'
+dir = '/root/Research_Internship_at_GVlab/data0313/real/model/proposed/'
 if not os.path.exists(dir):
     os.makedirs(dir)
 model_path = dir + 'proposed_model4.pth'

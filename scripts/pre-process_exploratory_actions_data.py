@@ -7,7 +7,7 @@ from scipy.signal import butter, sosfilt
 def preprocess(data):
     # データのサンプリング周波数とカットオフ周波数を設定
     fs = 3000.0  # サンプリング周波数 (Hz)
-    fc = 110.0   # カットオフ周波数 (Hz)
+    fc = 50.0   # カットオフ周波数 (Hz)
 
     # バターワースローパスフィルタの設計
     sos = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
@@ -34,9 +34,11 @@ def preprocess(data):
 mode = input('0:step1, 1:rollout: ')
 if mode == '0':
     # Load the npy data
-    dir = '/root/Research_Internship_at_GVlab/real/step1/data/'
+    dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
+    data_dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
 else:
-    dir = '/root/Research_Internship_at_GVlab/real/rollout/data/exploratory/'
+    dir = '/root/Research_Internship_at_GVlab/data0313/real/rollout/data/exploratory/'
+    data_dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
     DATA_PER_SPONGE = 1
 
 raw_dataset, filtered_dataset, preprocessed_dataset = {}, {}, {}
@@ -44,11 +46,11 @@ for sponge in ALL_SPONGES_LIST:
     raw_data, filtered_data, preprocessed_data = None, None, None
     for trial in range(1, DATA_PER_SPONGE+1):
         if mode == '0':
-            pressing_path = dir + 'pressing/' + sponge + '_' + str(trial) + '.npz'
-            lateral_path = dir + 'lateral/' + sponge + '_' + str(trial) + '.npz'
+            pressing_path = data_dir + 'pressing/' + sponge + '_1.npz'
+            lateral_path = data_dir + 'lateral/' + sponge + '_1.npz'
         else:
-            pressing_path = dir + 'pressing/' + sponge + '.npz'
-            lateral_path = dir + 'lateral/' + sponge + '.npz'
+            pressing_path = data_dir + 'pressing/' + sponge + '_1.npz'
+            lateral_path = data_dir + 'lateral/' + sponge + '_1.npz'
         if not os.path.exists(pressing_path) or not os.path.exists(lateral_path):
             print('The data for', sponge, 'does not exist.')
             continue
@@ -81,6 +83,8 @@ for sponge in ALL_SPONGES_LIST:
     filtered_dataset[sponge] = filtered_data #(DEMO_PER_SPONGE, 400, 6)
     preprocessed_dataset[sponge] = preprocessed_data #(DEMO_PER_SPONGE, 400, 6)
 
+if not os.path.exists(dir):
+    os.makedirs(dir)
 # save as npz
 raw_data_save_path = dir + 'exploratory_action_raw.npz' 
 np.savez(raw_data_save_path, **raw_dataset)
