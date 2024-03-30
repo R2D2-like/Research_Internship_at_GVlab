@@ -27,7 +27,7 @@ def train(model, data_loader, optimizer, device, num_epochs=200):
                 print(f"Epoch: {epoch}, Loss: {loss.item()}, Reconstruction Loss: {loss_dict['Reconstruction_Loss']}, KLD: {loss_dict['KLD']}")
 
 if __name__ == "__main__":
-    dir = '/root/Research_Internship_at_GVlab/sim/'
+    dir = '/root/Research_Internship_at_GVlab/data0402/sim/'
     data_path = dir + "data/sim_preprocessed.npy"  # specify the path to data
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

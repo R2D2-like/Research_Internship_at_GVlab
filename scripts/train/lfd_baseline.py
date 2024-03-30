@@ -28,7 +28,7 @@ class LfDBaseline(VAE):
         
         # Redefine the decoder to match the LfD output dimensions
         self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, hidden_dim * 2000),
+            nn.Linear(latent_dim, hidden_dim * 80),
             nn.Dropout(0.1)
         )
 
@@ -44,7 +44,7 @@ class LfDBaseline(VAE):
         Override the VAE's decode method to match the LfD.
         """
         result = self.decoder(z) # (B, 2000*hidden_dim)
-        result = result.view(-1, 2000, self.hidden_dim)  # (B, 2000, hidden_dim)
+        result = result.view(-1, 80, self.hidden_dim)  # (B, 2000, hidden_dim)
         result = self.final_layer(result)
         return result
     

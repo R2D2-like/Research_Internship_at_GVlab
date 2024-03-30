@@ -22,7 +22,12 @@ def load_data(exp_action_data_path, demo_data_path):
             targets = targets[:, :, :3] #(DEMO_PER_SPONGE, 2000, 3)
         else:
             inputs = np.concatenate([inputs, exp_action_data[sponge]], axis=0) #(len(TRAIN_SPONGES_LIST), 400, 6)
-            targets = np.concatenate([targets, demo_data[sponge]], axis=0) #(len(TRAIN_SPONGES_LIST), 2000, 3)
+            target = demo_data[sponge]
+            target = np.transpose(target, (0, 2, 1)) #(DEMO_PER_SPONGE, 2000, 9)
+            # (DEMO_PER_SPONGE, 2000, 9) -> (DEMO_PER_SPONGE, 2000, 3)
+            target = target[:, :, :3] #(DEMO_PER_SPONGE, 2000, 3)
+            print(targets.shape, target.shape)
+            targets = np.concatenate([targets, target], axis=0) #(len(TRAIN_SPONGES_LIST), 2000, 3)
     return inputs, targets
 
 def train(model, data_loader, optimizer, device,num_epochs=10000):
@@ -42,12 +47,12 @@ def train(model, data_loader, optimizer, device,num_epochs=10000):
 
 def main():
     # load
-    exp_action_data_path = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/exploratory_action_preprocessed.npz'
-    demo_data_path = '/root/Research_Internship_at_GVlab/real0328/step2/data/demo_preprocessed.npz'
-    encoder_weights_path = '/root/Research_Internship_at_GVlab/sim/model/vae_encoder.pth'
+    exp_action_data_path = '/root/Research_Internship_at_GVlab/data0402/real/step1/data/exploratory_action_preprocessed.npz'
+    demo_data_path = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/demo_preprocessed.npz'
+    encoder_weights_path = '/root/Research_Internship_at_GVlab/data0402/sim/model/vae_encoder.pth'
 
     # save
-    dir = '/root/Research_Internship_at_GVlab/real0328/model/baseline/'
+    dir = '/root/Research_Internship_at_GVlab/data0402/real/model/baseline/'
     if not os.path.exists(dir):
         os.makedirs(dir)
     model_path = dir + 'baseline_model.pth'
@@ -59,7 +64,7 @@ def main():
     # load data and create DataLoader
     inputs, targets = load_data(exp_action_data_path, demo_data_path)
     inputs = np.expand_dims(inputs[0], axis=0)
-    targets = np.expand_dims(targets[0][::20][20:], axis=0)
+    targets = np.expand_dims(targets[0], axis=0)
     inputs = torch.tensor(inputs, dtype=torch.float32)
     targets = torch.tensor(targets, dtype=torch.float32)
     print(inputs.shape, targets.shape)
