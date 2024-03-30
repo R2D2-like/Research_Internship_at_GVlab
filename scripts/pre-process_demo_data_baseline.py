@@ -6,6 +6,7 @@ def calc_min_max(dir):
     for sponge in TRAIN_SPONGES_LIST:
         data = None
         for trial in range(1, DATA_PER_SPONGE+1):
+            trial = 4
             data_path = dir + sponge + '_' + str(trial) + '.npz'
             if not os.path.exists(data_path):
                 print('The data for', sponge, 'does not exist.')
@@ -44,10 +45,11 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
     return normalized_data.T #(9, 2000)
 
 dir = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/'
+save_dir = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/'
 min_val, max_val = calc_min_max(dir)
 
 dataset = {}
-for sponge in ALL_SPONGES_LIST:
+for sponge in TRAIN_SPONGES_LIST:
     data = None
     for trial in range(1, DATA_PER_SPONGE+1):
         data_path = dir + sponge + '_' + str(trial) + '.npz'
@@ -76,11 +78,11 @@ for sponge in ALL_SPONGES_LIST:
     dataset[sponge] = data #(DEMO_PER_SPONGE, 9, 2000)
 
 # save as npz
-np.savez(dir + 'demo_preprocessed.npz', **dataset)
-print('The preprocessed data has been saved at\n', dir + 'demo_preprocessed.npz')
+np.savez(save_dir + 'demo_preprocessed.npz', **dataset)
+print('The preprocessed data has been saved at\n', save_dir + 'demo_preprocessed.npz')
 
 print('Copy the value below and paste it to config/values.py')
 print('DEMO_TRAJECTORY_MIN =', min_val[:3])
 print('DEMO_TRAJECTORY_MAX =', max_val[:3])
-print('DEMO_FORCE_TORQUE_MIN =', min_val[3:])
-print('DEMO_FORCE_TORQUE_MAX =', max_val[3:])
+# print('DEMO_FORCE_TORQUE_MIN =', min_val[3:])
+# print('DEMO_FORCE_TORQUE_MAX =', max_val[3:])
