@@ -7,9 +7,9 @@ import os
 env = input('0:sim, 1:real: ')
 if env == '0':
     idx = int(input('idx: '))
-    raw_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_data_3dim.npy' #(100, 400, 6)
-    filtered_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_filtered.npy' #(100, 400, 6)
-    preprocessed_data_path = '/root/Research_Internship_at_GVlab/sim/data/sim_preprocessed.npy' #(100, 400, 6)
+    raw_data_path = '/root/Research_Internship_at_GVlab/data0402/sim/data/sim_data_3dim.npy' #(100, 400, 6)
+    filtered_data_path = '/root/Research_Internship_at_GVlab/data0402/sim/data/sim_filtered.npy' #(100, 400, 6)
+    preprocessed_data_path = '/root/Research_Internship_at_GVlab/data0402/sim/data/sim_preprocessed.npy' #(100, 400, 6)
     raw_data = np.load(raw_data_path)[idx]
     filtered_data = np.load(filtered_data_path)[idx]
     preprocessed_data = np.load(preprocessed_data_path)[idx]
@@ -86,12 +86,12 @@ else:
         mode = 'step2'
     else:
         mode = 'rollout'
-    data_dir = '/root/Research_Internship_at_GVlab/data0313/real/' + mode + '/data/'
+    data_dir = '/root/Research_Internship_at_GVlab/data0402/real/' + mode + '/data/'
     data_type = input('0:exploratory, 1:trajectory: ')
     stiffness = input('stiffness level (1, 2, 3, 4): ')
     friction = input('friction level (1, 2, 3): ')
     sponge = 's' + stiffness + 'f' + friction
-    save_dir = '/root/Research_Internship_at_GVlab/data0328/fig/' + mode + '/' 
+    save_dir = '/root/Research_Internship_at_GVlab/data0402/fig/' + mode + '/' 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -164,19 +164,18 @@ else:
             if method == '0':
                 if p_or_r == '0':
                     # data_path = data_dir + 'baseline/predicted/' + sponge + '.npz'
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/baseline/predicted/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/baseline/predicted/' + save_name +'.npz'
                     save_dir = save_dir + 'baseline/predicted/'
                 else:
                     # data_path = data_dir + 'baseline/result/' + sponge + '.npz'
-                    data_path = '/root/Research_Internship_at_GVlab/real/rollout/data/baseline/result/baseline_hightable.npz'
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/baseline/result/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/baseline/result/' + save_name +'.npz'
                     save_dir = save_dir + 'baseline/result/'
             else:
                 if p_or_r == '0':
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/proposed/predicted/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/proposed/predicted/' + save_name +'.npz'
                     save_dir = save_dir + 'proposed/predicted/'
                 else:
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/proposed/result/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/proposed/result/' + save_name +'.npz'
                     save_dir = save_dir + 'proposed/result/'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
