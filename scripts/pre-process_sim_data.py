@@ -11,7 +11,7 @@ fc = 50.0   # カットオフ周波数 (Hz)
 sos = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
 sos_t = butter(N=4, Wn=fc/(fs/2), btype='low', output='sos')
 
-dir = '/root/Research_Internship_at_GVlab/sim/data/'
+dir = '/root/Research_Internship_at_GVlab/data0402/sim/data/'
 if not os.path.exists(dir):
     os.makedirs(dir)
 

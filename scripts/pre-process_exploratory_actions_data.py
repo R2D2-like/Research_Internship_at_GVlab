@@ -34,11 +34,11 @@ def preprocess(data):
 mode = input('0:step1, 1:rollout: ')
 if mode == '0':
     # Load the npy data
-    dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
-    data_dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
+    dir = '/root/Research_Internship_at_GVlab/data0402/real/step1/data/'
+    data_dir = '/root/Research_Internship_at_GVlab/data0402/real/step1/data/'
 else:
-    dir = '/root/Research_Internship_at_GVlab/data0313/real/rollout/data/exploratory/'
-    data_dir = '/root/Research_Internship_at_GVlab/data0313/real/step1/data/'
+    dir = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/exploratory/'
+    data_dir = '/root/Research_Internship_at_GVlab/data0402/real/step1/data/'
     DATA_PER_SPONGE = 1
 
 raw_dataset, filtered_dataset, preprocessed_dataset = {}, {}, {}
