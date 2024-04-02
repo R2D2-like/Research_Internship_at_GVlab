@@ -6,7 +6,7 @@ def calc_min_max(dir):
     for sponge in TRAIN_SPONGES_LIST:
         data = None
         for trial in range(1, DATA_PER_SPONGE+1):
-            trial = 4
+            trial = 1
             data_path = dir + sponge + '_' + str(trial) + '.npz'
             if not os.path.exists(data_path):
                 print('The data for', sponge, 'does not exist.')
@@ -44,7 +44,7 @@ def preprocess(data, min_val, max_val):  # (2000, 9)
 
     return normalized_data.T #(9, 2000)
 
-dir = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/'
+dir = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/'
 save_dir = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/'
 min_val, max_val = calc_min_max(dir)
 
@@ -52,8 +52,10 @@ dataset = {}
 for sponge in TRAIN_SPONGES_LIST:
     data = None
     for trial in range(1, DATA_PER_SPONGE+1):
+        trial = 1
         data_path = dir + sponge + '_' + str(trial) + '.npz'
         if not os.path.exists(data_path):
+            print(data_path)
             print('The data for', sponge, 'does not exist.')
             exit()
 

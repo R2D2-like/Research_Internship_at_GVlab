@@ -91,7 +91,7 @@ else:
     stiffness = input('stiffness level (1, 2, 3, 4): ')
     friction = input('friction level (1, 2, 3): ')
     sponge = 's' + stiffness + 'f' + friction
-    save_dir = '/root/Research_Internship_at_GVlab/data0328/fig/' + mode + '/dotted/' 
+    save_dir = '/root/Research_Internship_at_GVlab/data0402/fig/' + mode + '/dotted/' 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -173,14 +173,14 @@ else:
                     save_dir = save_dir + 'baseline/result/'
             else:
                 if p_or_r == '0':
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/proposed/predicted/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/proposed/predicted/' + save_name +'_0402.npz'
                     save_dir = save_dir + 'proposed/predicted/'
                 else:
-                    data_path = '/root/Research_Internship_at_GVlab/data0328/real/rollout/data/proposed/result/' + save_name +'.npz'
+                    data_path = '/root/Research_Internship_at_GVlab/data0402/real/rollout/data/proposed/result/' + save_name +'_0402.npz'
                     save_dir = save_dir + 'proposed/result/'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            save_path = save_dir + save_name +'.png'
+            save_path = save_dir + save_name +'_0402.png'
         if p_or_r == '0':
             # eef_positionだけプロットする
             eef_position_data =  np.load(data_path)['eef_position']

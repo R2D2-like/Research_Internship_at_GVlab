@@ -2,7 +2,7 @@ import numpy as np
 from config.values import *
 import os
 
-dir = '/root/Research_Internship_at_GVlab/data0313/real/step2/data/'
+dir = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/'
 save_dir = '/root/Research_Internship_at_GVlab/data0402/real/step2/data/'
 
 dataset = {}
@@ -11,7 +11,7 @@ ft_data_log, z_diff_data_log = None, None
 for sponge in TRAIN_SPONGES_LIST:
     ft_data, z_diff_data = None, None
     for trial in range(1, DATA_PER_SPONGE+1):
-        trial = 4
+        # trial = 4
         data_path = dir + sponge + '_' + str(trial) + '.npz'
         if not os.path.exists(data_path):
             print('The data for', sponge, 'does not exist.')
